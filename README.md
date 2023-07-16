@@ -10,7 +10,7 @@ L'objectif est de mener à bien un projet de data science et d'élaborer un syst
 
 Ce projet a été mené par trois personnes en formation chez DataScientest:
 
-- Fatoumata Barry [LinkedIn]() [GitHub]()
+- Fatoumata Barry [LinkedIn]() [GitHub](https://github.com/Barry-ta?tab=repositories)
 - Anthony Ferre [LinkedIn](www.linkedin.com/in/anthony-ferre-6bb5b7172) [GitHub](https://github.com/anthoferre?tab=repositories)
 - Thomas Head-Rapson [LinkedIn](https://www.linkedin.com/in/thomas-head-rapson-132008135/) [GitHub](https://github.com/thomasheadrapson?tab=repositories)
 
