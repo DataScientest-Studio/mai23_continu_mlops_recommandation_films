@@ -43,7 +43,7 @@ def preprocessing_data():
     df_imdb['tconst'].replace({'tt':''}, regex= True,inplace = True)
     df_imdb['tconst'] = df_imdb['tconst'].astype('int')
     
-    # renommer la colonne tconst en imdbId
+    # renommer la colonne tconst en imdbId pour la fusion ci-après
     df_imdb.rename(columns= {'tconst' : 'imdbId'}, inplace = True)
     
     # merge df_movie_lens et df_imdb
@@ -53,41 +53,44 @@ def preprocessing_data():
     df_merged.drop(columns = {'endYear','title','originalTitle','genres_x','imdbId','isAdult'},inplace = True)
     df_merged.dropna(inplace = True)
     
-    #modification de certaines colonnes pour les modèles et retourner les films ayant un minimum de 1000 votes (problème de mémoire sinon pour plus tard)
+    # changement de type de la variable runtimeMinutes
     df_merged['runtimeMinutes'] = df_merged['runtimeMinutes'].astype('int')
+
+    #remplacement des ',' par des espaces afin d'utiliser ci-après la fonction tfid vectorizer
     df_merged['genres_y'].replace({',':' '}, regex = True, inplace = True)
     df_merged['writers'].replace({',':' '}, regex = True, inplace = True)
     df_merged['directors'].replace({',':' '}, regex = True, inplace = True)
+    #retourner les films avec un minimum de votes (problème de taille sinon)
     return df_merged[df_merged['numVotes']>=1000]
 
 df_merged = preprocessing_data()
 
 def separate_df():
-    collab_filtering = df_merged.iloc[:,[0,1,2]]
-    content_based_filtering = df_merged.iloc[:,[0,1,3,5,6,7,9,10,11]]
+    collab_filtering = df_merged.iloc[:,[0,1,2]] #userId,movieId,ratings
+    content_based_filtering = df_merged.iloc[:,[0,1,3,5,6,7,9,10,11]] #userId,movieId, averageRating, directors, writers,titleType,startYear,runtimeMinutes,genres
     return collab_filtering,content_based_filtering
 
 collab_filtering,content_based_filtering = separate_df()
 
 
-#############################################################################Content_based_filtering##################################################################################
+#############################################################################hybrid_recommendation_system#################################################################################
 
 def preprocessing_content_based_filtering():
     
     # supprimer les doublons
     content_based_filtering_duplicated = content_based_filtering.iloc[:,1:].drop_duplicates(keep = 'last')
     
-    #standardiser les colonnes averageRating, startYear, runtimeMinutes
+    #standardiser les colonnes averageRating, startYear, runtimeMinutes (= integer)
     scaler = MinMaxScaler()
     df_scaler = pd.DataFrame(scaler.fit_transform(content_based_filtering_duplicated.iloc[:,[1,5,6]]), 
-                         columns= content_based_filtering_duplicated.iloc[:,[1,5,6]].columns)
+                             columns= content_based_filtering_duplicated.iloc[:,[1,5,6]].columns)
     
     
-    #create dict_movies
-    dict_movie = pd.Series(df_merged['primaryTitle'].values,index = df_merged['movieId']).to_dict()
+    #create dictionary pour les modèles et déterminer la liste des films
+    dict_movie = pd.Series(df_merged['primaryTitle'].values,index = df_merged['movieId']).to_dict() #dict --> movieId : movie {ex =  2 : Jumanji}
     content_based_filtering_duplicated.reset_index(inplace= True)
-    movies = content_based_filtering_duplicated['movieId'].apply(lambda x : dict_movie[x])
-    movies_index = pd.Series(movies.index, index = movies)
+    movies = content_based_filtering_duplicated['movieId'].apply(lambda x : dict_movie[x])  
+    movies_index = pd.Series(movies.index, index = movies) #dict --> movie : movie_index (à partir de 0) {ex = Jumanji : 0}
     
     # TfidVectorizer pour transformer les colonnes textuelles en vecteurs numériques se basant sur les mots et leur fréquence 
 # d'apparition
@@ -98,109 +101,139 @@ def preprocessing_content_based_filtering():
     
     # concaténer le df
     df_concat = pd.concat([df_scaler,
-                       pd.DataFrame.sparse.from_spmatrix(tfid_genres),
-                       pd.DataFrame.sparse.from_spmatrix(tfid_directors),
-                       pd.DataFrame.sparse.from_spmatrix(tfid_writers)], axis = 1)
+                           pd.DataFrame.sparse.from_spmatrix(tfid_genres),
+                           pd.DataFrame.sparse.from_spmatrix(tfid_directors),
+                           pd.DataFrame.sparse.from_spmatrix(tfid_writers)], axis = 1)
     
+    # réduire la taille du df float64 --> float16
     df_concat = df_concat.astype('float16')
     return df_concat, movies,movies_index,content_based_filtering_duplicated
 
 content_based_filtering, movies, movies_index,content_based_filtering_duplicated = preprocessing_content_based_filtering()
 
-def train_nearest_neighbors_model(n_neighbors):
+
+# entraînement des modèles
+
+# nearestNeighbor - content based filtering
+def train_nearest_neighbors_model(n_neighbors : int):
+    # instancier le modèle
     model_knn = NearestNeighbors()
+
+    #entraînement sur nos données
     model_knn.fit(content_based_filtering)
-    return model_knn.kneighbors(np.array(content_based_filtering),n_neighbors+1,return_distance=True)
+
+    # retourne une liste des indices des n plus proches voisins, le premier argument doit être au format array d'où le np.array, n_neighbors+1 car le premier film plus proche voisn est le film lui même
+    return model_knn.kneighbors(np.array(content_based_filtering),n_neighbors+1,return_distance=True) 
+
 
 kneighbors_50 = train_nearest_neighbors_model(50)
 
-def recommendation_movies_knn(movie):  
-    """
-    movie : nom du film
-    retourne une liste de 20 films les plus similaires au film rentré en paramètre
-    """
-    return movies.iloc[kneighbors_50[1][movies_index[movie]][1:21]]
-
-def recommendation_movies_knn_user(movie,userId):   
-    """
-    movie : nom du film
-    userId : identifiant de l'utilisateur
-    retourne une liste de 20 films les plus similaires au film rentré en paramètre et non déjà vus par l'utilisateur en 
-    question
-    """
-    return movies.iloc[kneighbors_50[1][movies_index[movie]]][~movies.iloc[kneighbors_50[1][movies_index[movie]]].index.isin(collab_filtering[collab_filtering['userId'] == userId]['movieId'])][1:]
-
-recommendation_movies_knn('Toy Story')
-
-#############################################################################Collaborative_filtering##################################################################################
-
-def collaborative_filtering(userId,n_recommendation,svd_model):
-    """
-    userId : identifiant de l'utilisateur ;
-    n_recommendation : nombre de recommandation ;
-    svd_model : algorithme de SVD ;
-    retourne une liste de n films recommandés non déja vus par cet userId se basant sur les notes mises sur une liste de films
-    et l'interaction avec d'autres utilisateurs et leurs notes
-    """
-    
-    global collab_filtering
-    collab_filtering_df = collab_filtering
-    collab_filtering_df = collab_filtering_df.drop_duplicates(subset = ['movieId'],keep = 'first')
-    collab_filtering_df['est'] = collab_filtering_df.apply(lambda x: svd_model.predict(userId,x['movieId'], x['rating']).est,
-                                                           axis = 1)
-    collab_filtering_df = collab_filtering_df.iloc[:,[1,3]]
-    
-    movies_sorted = collab_filtering_df.sort_values(['est'], ascending=False).merge(right = pd.DataFrame(content_based_filtering_duplicated[content_based_filtering_duplicated['movieId'].isin(collab_filtering_df['movieId'])]['movieId']).reset_index(),
-                                                                                 on = 'movieId',
-                                                                                 how = 'inner')
-    movies_sorted = movies_sorted[~movies_sorted['movieId'].isin(collab_filtering[collab_filtering['userId'] == userId]['movieId'].unique())]
-    return movies[movies_sorted['index']][0:n_recommendation]
+# svd model - collaborative filtering
 
 def train_svd():
+    #définir l'échelle des valeurs de notes
     reader = Reader(rating_scale=(0.5,5))
+    #importer les données
     data = Dataset.load_from_df(collab_filtering,reader = reader)
     
+    #séparer les données en un jeu de test et d'entraînement
     trainset, testset = train_test_split(data, test_size=0.25,random_state=10)
     
+    # instancier le modèle SVD et l'appliquer sur les données d'entraînement
     svd = SVD()
     svd.fit(trainset)
     
+    # tester sur nos données de test
     test_pred = svd.test(testset)
     
+    #retourner le modèle et la rmse comme métrique
     return svd,accuracy.rmse(test_pred, verbose=True) 
 
 svd,rmse_svd = train_svd()
 
-collaborative_filtering(userId = 309,
-                        n_recommendation = 20,
-                        svd_model = svd)
-
 
 #############################################################################Hybrid_recommandation_filtering##################################################################################
 
-def hybrid_recommendation_movies(userId,movie,svd_model):
+def hybrid_recommendation_movies(userId : int, movie : str, n_recommendation = 20, svd_model = svd):
     """
     userId : identifiant de l'utilisateur ;
     movie : nom du film ; 
+    n_recommendation : nombre de films à recommander,
     svd_model : algorithme de SVD ;
-    retourne une liste de n films recommandés à partir d'un film se basant à la fois sur les similitudes entre les films 
-    mais également sur les interactions entre les notes des différents utilisateurs (système hybrid)
-    le nombre de recommandation dépend de celui fait dans le système based_content
     """
-    ratings_from_content_filtering = collab_filtering[collab_filtering['movieId'].isin(collab_filtering[collab_filtering.index.isin(pd.Series(content_based_filtering_duplicated['index'],
-                                                                                                         index = movies_index)[recommendation_movies_knn_user(movie,userId).index])]['movieId'].unique())]
-    
    
-    ratings_from_content_filtering['est'] = ratings_from_content_filtering.apply(lambda x: svd_model.predict(userId,x['movieId'], x['rating']).est, axis = 1)
+    if (userId not in df_merged['userId'].unique()) & (movie not in list(movies)):
+        print('Erreur sur les paramètres rentrés dans la fonction, le userId et le film ne font pas partie de la base de données!')
+
+    elif movie not in list(movies):
+        """
+        si le film n'est pas dans la liste, alors il retourne une liste de n films recommandés non déja vus par un userId se basant sur 
+        les notes mises sur une liste de films et l'interaction avec d'autres utilisateurs et leurs notes (collaborative filtering)
+        """
+
+
+        global collab_filtering #pour instancier la variable collab_filtering qui est en dehors de la fonction
+        collab_filtering_df = collab_filtering
+
+        #supprimer les doublons, nous n'avons besoin que d'une donnée par film, l'entraînement a déjà été fait et gain de temps en calcul
+        collab_filtering_df = collab_filtering_df.drop_duplicates(subset = ['movieId'],keep = 'first')
+
+        #appliquer le modèle svd sur chaque ligne
+        collab_filtering_df['est'] = collab_filtering_df.apply(lambda x: svd_model.predict(userId,x['movieId'], x['rating']).est,
+                                                               axis = 1)
+        
+        #ne garder que la colonne movieId et la note estimée
+        collab_filtering_df = collab_filtering_df.iloc[:,[1,3]]
+        
+        #trier le df par les notes estimées décroissante
+        movies_sorted = collab_filtering_df.sort_values(['est'], ascending=False)
+
+        
+        movies_sorted = movies_sorted.merge(right = pd.DataFrame(content_based_filtering_duplicated[content_based_filtering_duplicated['movieId'].isin(collab_filtering_df['movieId'])]['movieId']).reset_index(),
+                                                                                        on = 'movieId',
+                                                                                        how = 'inner')
+        
+        # regarder quel film a déjà été vu par cet userId et ressortir les films non vus dans l'ordre des notes
+        movies_sorted = movies_sorted[~movies_sorted['movieId'].isin(collab_filtering[collab_filtering['userId'] == userId]['movieId'].unique())]
+        #retourne les n films
+        return movies[movies_sorted['index']][0:n_recommendation]
+
+    elif userId not in df_merged['userId'].unique():
+        '''
+        si l'utilisateur n'est pas dans la liste alors le système de recommandation se base uniquement sur le content_based_filtering et 
+        les films les plus proches voisins en fonction des caractéristiques des films (nearestNeighbors méthode)
+
+        explication ligne ci-dessous:
+        movies_index[movie] --> retourne la ligne à laquelle se trouve le film en question dans le fichier movies
+        kneighbors_50[1][movies_index[movie]] --> retourne la liste des indices des voisins du film en question du plus proche au plus loin
+        au final, cela retourne les 20 films les plus proches voisins
+        '''
+        return movies.iloc[kneighbors_50[1][movies_index[movie]][1:n_recommendation+1]]
     
-    ratings_from_content_filtering = ratings_from_content_filtering.iloc[:,[1,3]].drop_duplicates(keep = 'first')
-    
-    movies_sorted = ratings_from_content_filtering.sort_values(['est'], ascending=False).merge(right = pd.DataFrame(content_based_filtering_duplicated[content_based_filtering_duplicated['movieId'].isin(ratings_from_content_filtering['movieId'])]['movieId']).reset_index(),
-                                                                                 on = 'movieId',
-                                                                                 how = 'inner')
-    
-    return movies[movies_sorted['index']][:20]
+    else:
+        # retourne la liste des films recommandés non vus par cet userId en fonction du content-based-filtering
+        recommendation_movies_knn_user = movies.iloc[kneighbors_50[1][movies_index[movie]]][~movies.iloc[kneighbors_50[1][movies_index[movie]]].index.isin(collab_filtering[collab_filtering['userId'] == userId]['movieId'])][1:]
+        
+        ratings_from_content_filtering = collab_filtering[collab_filtering['movieId'].isin(collab_filtering[collab_filtering.index.isin(pd.Series(content_based_filtering_duplicated['index'],
+                                                                                                                                                  index = movies_index)[recommendation_movies_knn_user.index])]['movieId'].unique())]
+        
+        #appliquer le modèle svd sur chaque ligne
+        ratings_from_content_filtering['est'] = ratings_from_content_filtering.apply(lambda x: svd_model.predict(userId,x['movieId'], x['rating']).est, axis = 1)
+        
+        #supprimer les doublons, nous n'avons besoin que d'une donnée par film
+        ratings_from_content_filtering = ratings_from_content_filtering.iloc[:,[1,3]].drop_duplicates(keep = 'first')
+        
+        #trier les films par notes décroissantes
+        movies_sorted = ratings_from_content_filtering.sort_values(['est'], ascending=False)
+
+        movies_sorted = movies_sorted.merge(right = pd.DataFrame(content_based_filtering_duplicated[content_based_filtering_duplicated['movieId'].isin(ratings_from_content_filtering['movieId'])]['movieId']).reset_index(),
+                                                                                                   on = 'movieId',
+                                                                                                   how = 'inner')
+        
+        return movies[movies_sorted['index']][:20]
 
 hybrid_recommendation_movies(userId = 108,
-                                       movie = 'Toy Story',
-                                       svd_model = svd)
+                             movie = 'Toy Story',
+                             svd_model = svd)
+
+
