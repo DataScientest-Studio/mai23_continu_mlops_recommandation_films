@@ -9,13 +9,13 @@ from surprise.model_selection import train_test_split
 # define paths to data
 data_path = "./data/"
 data_path_tsv = "{}IMDB/".format(data_path)
-data_path_csv = "{}Movie_Lens/".format(data_path)
+data_path_csv = "{}Movie_Lens/ml-20m/".format(data_path)
 
 # ouverture des fichiers
-def open_tsv_data(tsv_file, data_path_tsv = "./data/IMDB"):
+def open_tsv_data(tsv_file, data_path_tsv = "./data/IMDB/"):
     return pd.read_csv('{path}{file}.tsv.gz'.format(path = data_path_tsv, file = tsv_file), compression='gzip',sep = '\t', na_values = '\\N')
 
-def open_csv_data(csv_file, data_path_csv = "./data/"):
+def open_csv_data(csv_file, data_path_csv = "./data/Movie_Lens/ml-20m/"):
     return pd.read_csv('{path}{file}.csv'.format(path = data_path_csv, file = csv_file))
 
 title_ratings = open_tsv_data(tsv_file='title.ratings')
