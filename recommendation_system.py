@@ -96,8 +96,8 @@ def preprocessing_data():
 
     #remplacement des ',' par des espaces afin d'utiliser ci-après la fonction tfid vectorizer
     df_merged['genres_y'].replace({',':' '}, regex = True, inplace = True)
-    #retourner les films avec un minimum de votes (problème de taille sinon)
-    return df_merged[df_merged['numVotes']>=1000]
+    #retourner les films uniquement
+    return df_merged[df_merged['titleType']=='movie']
 
 df_merged = preprocessing_data()
 
