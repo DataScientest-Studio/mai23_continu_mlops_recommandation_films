@@ -13,7 +13,7 @@ data_path_csv = "{}Movie_Lens/ml-20m/".format(data_path)
 
 # ouverture des fichiers
 def open_tsv_data(tsv_file, data_path_tsv = "./data/IMDB/"):
-    return pd.read_csv('{path}{file}.tsv.gz'.format(path = data_path_tsv, file = tsv_file), compression='gzip',sep = '\t', na_values = '\\N')
+    return pd.read_csv('{path}{file}.tsv.gz'.format(path = data_path_tsv, file = tsv_file), compression='gzip',sep = '\t', na_values = '\\N', low_memory = False)
 
 def open_csv_data(csv_file, data_path_csv = "./data/Movie_Lens/ml-20m/"):
     return pd.read_csv('{path}{file}.csv'.format(path = data_path_csv, file = csv_file))
@@ -27,13 +27,47 @@ ratings = open_csv_data('ratings')
 links = open_csv_data('links')
 movies = open_csv_data('movies')
 
+# suppression des catégories de personnes avec beaucoup de NaNs
+def drop_category():
+    title_principals.drop(title_principals[title_principals['category'] == 'self'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'cinematographer'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'producer'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'composer'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'editor'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'production_designer'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'archive_footage'].index, inplace = True)
+    title_principals.drop(title_principals[title_principals['category'] == 'archive_sound'].index, inplace = True)
+    return title_principals
+
+title_principals = drop_category()
+    
+# modifier title_principals pour avoir une colonne par catégories
+def merge_category():
+    # grouper les id des personnes par films et par leur rôle dans le film
+    global title_principals
+    title_principals = title_principals.groupby(['tconst','category']).agg({'nconst' : lambda x: ' '.join(x)}).reset_index()
+    
+    # créer des df par rôle
+    for category in title_principals['category'].unique():
+        globals()[category] = title_principals.groupby(by = ['category']).get_group(category).rename(columns={'nconst' : category}).drop('category', axis = 1)
+    
+    # merger les différents par rôle afin d'avoir un rôle par colonne
+    title_principals_new = globals()[title_principals['category'].unique()[0]].merge(globals()[title_principals['category'].unique()[1]], how = 'outer', on = 'tconst')
+    for i in range(2,len(title_principals['category'].unique())):
+        title_principals_new = title_principals_new.merge(globals()[title_principals['category'].unique()[i]], how = 'outer', on = 'tconst')
+    return title_principals_new
+    
+title_principals = merge_category()
+
 # merge entre df_imdb et df_movie_lens
 def merge_data():
     df_imdb = title_ratings.merge(right = title_crew, 
                                   how = 'inner',
                                   on = 'tconst').merge(right = title_basics,
                                                        how = 'inner',
-                                                       on = 'tconst')
+                                                       on = 'tconst').merge(right = title_principals,
+                                                                            how = 'inner',
+                                                                            on = 'tconst')
     
     df_movie_lens = ratings.merge(right = movies, how = 'inner', on = 'movieId').merge(right = links, how = 'inner', on = 'movieId')
     return df_imdb, df_movie_lens
@@ -53,9 +87,13 @@ def preprocessing_data():
     
     # merge df_movie_lens et df_imdb
     df_merged = df_movie_lens.merge(right = df_imdb, how = 'inner', on = 'imdbId')
+
+    # regrouper les colonnes actor et actress en une seule et remplacer les cases vides par des NaN
+    df_merged['actors'] = df_merged['actor'].str.cat(df_merged['actress'],na_rep = '', sep=' ')
+    df_merged.replace({' ' : np.nan}, inplace = True)
     
     #suppression des colonnes inutiles, des données manquantes
-    df_merged.drop(columns = ['endYear','title','originalTitle','genres_x','imdbId','isAdult'],inplace = True)
+    df_merged.drop(columns = ['endYear','title','originalTitle','genres_x','imdbId','isAdult','actor','actress', 'directors', 'writers'],inplace = True)
     df_merged.dropna(inplace = True)
     
     # changement de type de la variable runtimeMinutes
@@ -63,16 +101,14 @@ def preprocessing_data():
 
     #remplacement des ',' par des espaces afin d'utiliser ci-après la fonction tfid vectorizer
     df_merged['genres_y'].replace({',':' '}, regex = True, inplace = True)
-    df_merged['writers'].replace({',':' '}, regex = True, inplace = True)
-    df_merged['directors'].replace({',':' '}, regex = True, inplace = True)
-    #retourner les films avec un minimum de votes (problème de taille sinon)
-    return df_merged[df_merged['numVotes']>=1000]
+    #retourner les films uniquement
+    return df_merged[df_merged['titleType']=='movie']
 
 df_merged = preprocessing_data()
 
 def separate_df():
     collab_filtering = df_merged.iloc[:,[0,1,2]] #userId,movieId,ratings
-    content_based_filtering = df_merged.iloc[:,[0,1,3,5,6,7,9,10,11]] #userId,movieId, averageRating, directors, writers,titleType,startYear,runtimeMinutes,genres
+    content_based_filtering = df_merged.iloc[:,[0,1,3,5,7,8,9,10,11,12]] #userId,movieId, averageRating, titleType, startYear,runtimeMinutes,genres, director, writer, actors
     return collab_filtering,content_based_filtering
 
 collab_filtering,content_based_filtering = separate_df()
@@ -87,8 +123,8 @@ def preprocessing_content_based_filtering():
     
     #standardiser les colonnes averageRating, startYear, runtimeMinutes (= integer)
     scaler = MinMaxScaler()
-    df_scaler = pd.DataFrame(scaler.fit_transform(content_based_filtering_duplicated.iloc[:,[1,5,6]]), 
-                             columns= content_based_filtering_duplicated.iloc[:,[1,5,6]].columns)
+    df_scaler = pd.DataFrame(scaler.fit_transform(content_based_filtering_duplicated.iloc[:,[1,3,4]]), 
+                             columns= content_based_filtering_duplicated.iloc[:,[1,3,4]].columns)
     
     
     #create dictionary pour les modèles et déterminer la liste des films
@@ -101,14 +137,31 @@ def preprocessing_content_based_filtering():
 # d'apparition
     tfid = TfidfVectorizer(stop_words='english')
     tfid_genres = tfid.fit_transform(content_based_filtering_duplicated['genres_y'])
-    tfid_directors = tfid.fit_transform(content_based_filtering_duplicated['directors'])
-    tfid_writers = tfid.fit_transform(content_based_filtering_duplicated['writers'])
+    tfid_directors = tfid.fit_transform(content_based_filtering_duplicated['director'])
+    tfid_writers = tfid.fit_transform(content_based_filtering_duplicated['writer'])
+    tfid_actors = tfid.fit_transform(content_based_filtering_duplicated['actors'])
+
+    # créer une liste des noms des colonnes pour avoir que des strings et non des entiers et des strings
+    liste_genres = []
+    liste_actors = []
+    liste_directors = []
+    liste_writers = []
+    for i in range(tfid_genres.shape[1]):
+        liste_genres.append('genres_{}'.format(i+1))
+    for i in range(tfid_actors.shape[1]):
+        liste_actors.append('genres_{}'.format(i+1))
+    for i in range(tfid_directors.shape[1]):
+        liste_directors.append('genres_{}'.format(i+1))
+    for i in range(tfid_writers.shape[1]):
+        liste_writers.append('genres_{}'.format(i+1))
+
     
     # concaténer le df
     df_concat = pd.concat([df_scaler,
-                           pd.DataFrame.sparse.from_spmatrix(tfid_genres),
-                           pd.DataFrame.sparse.from_spmatrix(tfid_directors),
-                           pd.DataFrame.sparse.from_spmatrix(tfid_writers)], axis = 1)
+                       pd.DataFrame.sparse.from_spmatrix(tfid_genres, columns= liste_genres),
+                       pd.DataFrame.sparse.from_spmatrix(tfid_actors, columns= liste_actors),
+                       pd.DataFrame.sparse.from_spmatrix(tfid_directors, columns= liste_directors),
+                       pd.DataFrame.sparse.from_spmatrix(tfid_writers, columns= liste_writers)], axis = 1)
     
     # réduire la taille du df float64 --> float16
     df_concat = df_concat.astype('float16')
@@ -237,8 +290,8 @@ def hybrid_recommendation_movies(userId : int, movie : str, n_recommendation = 2
         
         return movies[movies_sorted['index']][:20]
 
-hybrid_recommendation_movies(userId = 108,
+print(hybrid_recommendation_movies(userId = 108,
                              movie = 'Toy Story',
-                             svd_model = svd)
+                             svd_model = svd))
 
 
