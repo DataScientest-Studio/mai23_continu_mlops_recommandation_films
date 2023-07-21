@@ -3,7 +3,7 @@ import numpy as np
 import pickle 
 # import uvicorn
 from fastapi import FastAPI
-from classes import User
+from classes import User, Credentials, Rating, Event
 from recommendation_system import hybrid_recommendation_movies
 
 
@@ -37,8 +37,8 @@ def get_home():
 
 
 
-@api.put("/new_user/{user: User}", tags = ["new_user"])
-def new_user(user):
+@api.put("/new_user", tags = ["new_user"])
+def new_user(user: User):
     """
     This is the new_user route
     """
@@ -46,8 +46,8 @@ def new_user(user):
         
     
 
-@api.get("/new_rating/{rating: Rating}", tags = ["new_rating"])
-def new_rating(rating):
+@api.post("/new_rating/", tags = ["new_rating"])
+def new_rating(rating: Rating):
     """
     This is the new_rating route
     """
@@ -55,17 +55,17 @@ def new_rating(rating):
 
 
 
-@api.post("/recommendation_system/{credentials: Credentials}", tags = ["recommendation"])
-def recommendation_system(credentials):
+@api.post("/recommendation_system", tags = ["recommendation"])
+def recommendation_system(credentials: Credentials, movieid, ):
     """
     This is the recommendation_system route
     """
-    return hybrid_recommendation_movies(credentials.user_id, credentials.movie_id)
+    return hybrid_recommendation_movies(credentials, movieid, )
 
 
 
-@api.post("/log_event/{event: Event}", tags = ["log_event"])
-def log_event(event):
+@api.post("/log_event", tags = ["log_event"])
+def log_event(event: Event):
     return {"This is the log_event route"}
 
 

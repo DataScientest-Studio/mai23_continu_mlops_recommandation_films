@@ -3,18 +3,18 @@ from typing import Optional
 
 # define User class
 class User(BaseModel):
-    account_id: Optional[int]
+    userid: Optional[int]
     name: str
     email: str
     password: str
   
 # define credentials class for authentication 
 class Credentials(BaseModel):
-    email: str
+    userid: str
     password: str
 
 # define class for logging activity
-class Log_Entry(BaseModel):
+class Event(BaseModel):
     userid: int
     timestamp: float
     activity: str
