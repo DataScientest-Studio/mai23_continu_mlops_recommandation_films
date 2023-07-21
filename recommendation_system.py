@@ -7,7 +7,7 @@ from surprise import SVD, Reader, Dataset, accuracy
 from surprise.model_selection import train_test_split
 
 # define paths to data
-data_path = "./data/"s
+data_path = "./data/"
 data_path_tsv = "{}IMDB/".format(data_path)
 data_path_csv = "{}Movie_Lens/ml-20m/".format(data_path)
 
@@ -38,10 +38,13 @@ def drop_category():
     title_principals.drop(title_principals[title_principals['category'] == 'archive_footage'].index, inplace = True)
     title_principals.drop(title_principals[title_principals['category'] == 'archive_sound'].index, inplace = True)
     return title_principals
+
+title_principals = drop_category()
     
 # modifier title_principals pour avoir une colonne par catégories
 def merge_category():
     # grouper les id des personnes par films et par leur rôle dans le film
+    global title_principals
     title_principals = title_principals.groupby(['tconst','category']).agg({'nconst' : lambda x: ' '.join(x)}).reset_index()
     
     # créer des df par rôle
@@ -49,11 +52,13 @@ def merge_category():
         globals()[category] = title_principals.groupby(by = ['category']).get_group(category).rename(columns={'nconst' : category}).drop('category', axis = 1)
     
     # merger les différents par rôle afin d'avoir un rôle par colonne
-    title_principals = globals()[title_principals['category'].unique()[0]].merge(globals()[title_principals['category'].unique()[1]], how = 'outer', on = 'tconst')
+    title_principals_new = globals()[title_principals['category'].unique()[0]].merge(globals()[title_principals['category'].unique()[1]], how = 'outer', on = 'tconst')
     for i in range(2,len(title_principals['category'].unique())):
-        title_principals = title_principals.merge(globals()[title_principals['category'].unique()[i]], how = 'outer', on = 'tconst')
-    return title_principals
+        title_principals_new = title_principals_new.merge(globals()[title_principals['category'].unique()[i]], how = 'outer', on = 'tconst')
+    return title_principals_new
     
+title_principals = merge_category()
+
 # merge entre df_imdb et df_movie_lens
 def merge_data():
     df_imdb = title_ratings.merge(right = title_crew, 
@@ -81,7 +86,7 @@ def preprocessing_data():
     df_imdb.rename(columns= {'tconst' : 'imdbId'}, inplace = True)
     
     # merge df_movie_lens et df_imdb
-    df_merged = df_movie_lens.merge(right = df_imdb, how = 'right', on = 'imdbId')
+    df_merged = df_movie_lens.merge(right = df_imdb, how = 'inner', on = 'imdbId')
 
     # regrouper les colonnes actor et actress en une seule et remplacer les cases vides par des NaN
     df_merged['actors'] = df_merged['actor'].str.cat(df_merged['actress'],na_rep = '', sep=' ')
@@ -134,7 +139,7 @@ def preprocessing_content_based_filtering():
     tfid_genres = tfid.fit_transform(content_based_filtering_duplicated['genres_y'])
     tfid_directors = tfid.fit_transform(content_based_filtering_duplicated['director'])
     tfid_writers = tfid.fit_transform(content_based_filtering_duplicated['writer'])
-    tfid_actors = tfid.fit_transform(content_based_filtering_bis_duplicated['actors'])
+    tfid_actors = tfid.fit_transform(content_based_filtering_duplicated['actors'])
 
     # créer une liste des noms des colonnes pour avoir que des strings et non des entiers et des strings
     liste_genres = []
@@ -285,8 +290,8 @@ def hybrid_recommendation_movies(userId : int, movie : str, n_recommendation = 2
         
         return movies[movies_sorted['index']][:20]
 
-hybrid_recommendation_movies(userId = 108,
+print(hybrid_recommendation_movies(userId = 108,
                              movie = 'Toy Story',
-                             svd_model = svd)
+                             svd_model = svd))
 
 
