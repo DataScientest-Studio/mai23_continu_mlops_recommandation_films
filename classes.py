@@ -7,17 +7,26 @@ class User(BaseModel):
     name: str
     email: str
     password: str
-    
-# define class for logging
+  
+# define credentials class for authentication 
+class Credentials(BaseModel):
+    email: str
+    password: str
+
+# define class for logging activity
 class Log_Entry(BaseModel):
-    account_id: int
+    userid: int
     timestamp: float
     activity: str
     response_code: int
     response_message: str
     output: dict
     
-
+# define class for ratings 
+class Rating(BaseModel):
+    userid: int
+    movieid: int
+    rating: float
 
     
 
