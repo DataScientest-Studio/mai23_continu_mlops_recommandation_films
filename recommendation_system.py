@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import joblib
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
@@ -184,6 +185,7 @@ def train_nearest_neighbors_model(n_neighbors : int):
     return model_knn.kneighbors(np.array(content_based_filtering),n_neighbors+1,return_distance=True) 
 
 
+
 kneighbors_50 = train_nearest_neighbors_model(50)
 
 # svd model - collaborative filtering
@@ -209,6 +211,8 @@ def train_svd():
 
 svd,rmse_svd = train_svd()
 
+np.save('kneighbors_results',kneighbors_50)
+joblib.dump(svd,'svd_model.pkl')
 
 #############################################################################Hybrid_recommandation_filtering##################################################################################
 
