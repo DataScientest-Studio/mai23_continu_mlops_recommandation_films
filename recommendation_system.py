@@ -1,3 +1,5 @@
+import os
+
 import pandas as pd
 import numpy as np
 import joblib
@@ -7,26 +9,39 @@ from sklearn.neighbors import NearestNeighbors
 from surprise import SVD, Reader, Dataset, accuracy
 from surprise.model_selection import train_test_split
 
-# define paths to data
-data_path = "./data/"
-data_path_tsv = "{}IMDB/".format(data_path)
-data_path_csv = "{}Movie_Lens/ml-20m/".format(data_path)
 
-# ouverture des fichiers
-def open_tsv_data(tsv_file, data_path_tsv = "./data/IMDB/"):
-    return pd.read_csv('{path}{file}.tsv.gz'.format(path = data_path_tsv, file = tsv_file), compression='gzip',sep = '\t', na_values = '\\N', low_memory = False)
+os.chdir("D:\Github\MLE")
 
-def open_csv_data(csv_file, data_path_csv = "./data/Movie_Lens/ml-20m/"):
-    return pd.read_csv('{path}{file}.csv'.format(path = data_path_csv, file = csv_file))
+##### Téléchargement des différents inputs
+## IMDB
 
-title_ratings = open_tsv_data(tsv_file='title.ratings')
-title_crew = open_tsv_data(tsv_file='title.crew')
-title_basics = open_tsv_data(tsv_file='title.basics')
-title_principals = open_tsv_data(tsv_file='title.principals')
+def download_IMDB_data():
+    title_ratings = pd.read_csv('data/title.ratings.tsv.gz',
+                                compression='gzip', sep='\t', na_values='\\N')
+    title_crew = pd.read_csv('data//title.crew.tsv.gz',
+                             compression='gzip', sep='\t', na_values='\\N')
+    name_basics = pd.read_csv('data/name.basics.tsv.gz',
+                              compression='gzip', sep='\t', na_values='\\N')
+    title_basics = pd.read_csv('data/title.basics.tsv.gz',
+                               compression='gzip', sep='\t', na_values='\\N')
+    title_principals = pd.read_csv('data/title.principals.tsv.gz',
+                                   compression='gzip', sep='\t', na_values='\\N')
+    return title_ratings, title_crew, name_basics, title_basics, title_principals
 
-ratings = open_csv_data('ratings')
-links = open_csv_data('links')
-movies = open_csv_data('movies')
+
+title_ratings, title_crew, name_basics, title_basics, title_principals = download_IMDB_data()
+
+
+### Movie_lens
+
+def download_Movie_lens_data():
+    ratings = pd.read_csv('data/ratings.csv')
+    links = pd.read_csv('data/links.csv')
+    movies = pd.read_csv('data/movies.csv')
+    return ratings, links, movies
+
+
+ratings, links, movies = download_Movie_lens_data()
 
 # suppression des catégories de personnes avec beaucoup de NaNs
 def drop_category():
