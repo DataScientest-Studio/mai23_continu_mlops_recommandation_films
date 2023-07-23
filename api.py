@@ -4,16 +4,18 @@ import pickle
 # import uvicorn
 from fastapi import FastAPI
 from classes import User, Credentials, Rating, Event
-from recommendation_system import hybrid_recommendation_movies
+#from recommendation_system import hybrid_recommendation_movies
+import sqlite3
 
 
 #with open("model.pkl", "rb") as pickled:
 #   model = pickle.load(pickled)
 
+
 api = FastAPI(
     title = "API project Recommnendation System, MLOps May 2023",
     description = "This is a Recommendation System API",
-    version = "0.0.1",
+    version = "0.1.0",
     openapi_tags = [
         {"name": "Home",
          "description": "This is the Home route"},
@@ -27,7 +29,6 @@ api = FastAPI(
          "description": "This is the log_event route"}])
 
 
-
 @api.get('/', tags = ["home"]) # default route
 def get_home():
     """
@@ -35,23 +36,42 @@ def get_home():
     """
     return {"Welcome to our API. This is a work in progress."}
 
+def connect_to_db(db):
+    connection = sqlite3.connect(db)
+    connection.row_factory = sqlite3.Row
+    return connection
 
-
-@api.put("/new_user", tags = ["new_user"])
+@api.post("/new_user", tags = ["new_user"])
 def new_user(user: User):
     """
     This is the new_user route
     """
-    return {"This will add a new user."}
-        
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    
+    try:
+        cursor.execute(f"INSERT INTO users (username, password) VALUES (?,?)",(user.username, user.password))
+        new_user_id = cursor.lastrowid
+        conn.commit()
+        return {"userid": new_user_id}
+    except sqlite3.IntegrityError:
+        print("User already exists")
+    except sqlite3.ProgrammingError:
+        print("SQL syntax error")
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return {None}
     
 
-@api.post("/new_rating/", tags = ["new_rating"])
+@api.post("/new_rating", tags = ["new_rating"])
 def new_rating(rating: Rating):
     """
     This is the new_rating route
     """
-    return {"This will add a new rating"}
+    return {f"When this route grows up it will add the new rating: {rating}"}
 
 
 
@@ -60,7 +80,8 @@ def recommendation_system(credentials: Credentials, movieid, ):
     """
     This is the recommendation_system route
     """
-    return hybrid_recommendation_movies(credentials, movieid, )
+    
+    return {f"When this route grows up it will provide recommendations for this movie: {movieid}"}
 
 
 
