@@ -22,7 +22,8 @@ cursor.executescript("""
     DROP TABLE IF EXISTS log;
     CREATE TABLE users (
         userid INTEGER PRIMARY KEY,
-        username TEXT NOT NULL,
+        name TEXT NOT NULL,
+        email TEXT NOT NULL,
         password TEXT NOT NULL);
     CREATE TABLE activity_log (entryid INTEGER PRIMARY KEY AUTOINCREMENT,
         logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
@@ -34,17 +35,20 @@ cursor.executescript("""
     """)
 # cursor.executescript(schema)
 
-user = (0,
+user0 = (0,
         "Thomas",
+        "thomas@e.mail",
         "abadpassword"
         )
-cursor.execute(f"INSERT INTO users VALUES (?,?,?)",user)
+
+cursor.execute(f"INSERT INTO users VALUES (?,?,?,?)",user0)
 #print (user[1])
-user2 = ("Anthony",
-        "abadpassword2"
+user1 = ("Anthony",
+         "anthony@e.mail",
+        "abadpassword1"
         )
 #print (user2[1])
-cursor.execute(f"INSERT INTO users (username, password) VALUES (?,?)",user2)
+cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)",user1)
 
 cursor.execute("SELECT * FROM users")
 print(cursor.fetchall())
