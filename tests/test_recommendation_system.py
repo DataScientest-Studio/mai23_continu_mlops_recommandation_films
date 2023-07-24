@@ -3,8 +3,7 @@ import pytest
 from pandas import DataFrame
 from surprise import accuracy, SVD
 
-from recommendation_system import download_IMDB_data, download_Movie_lens_data
-#drop_category, merge_category, merge_data, preprocessing_data, separate_df, preprocessing_content_based_filtering, train_nearest_neighbors_model
+from recommendation_system import download_IMDB_data, download_Movie_lens_data, drop_category, merge_category, merge_data, preprocessing_data, separate_df, preprocessing_content_based_filtering, train_nearest_neighbors_model
 import os
 import pandas as pd
 os.chdir("D:\Github\MLE")
