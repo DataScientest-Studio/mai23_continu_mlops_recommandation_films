@@ -15,7 +15,7 @@ import sqlite3
 api = FastAPI(
     title = "API project Recommnendation System, MLOps May 2023",
     description = "This is a Recommendation System API",
-    version = "0.1.0",
+    version = "0.1.1",
     openapi_tags = [
         {"name": "Home",
          "description": "This is the Home route"},
@@ -29,6 +29,12 @@ api = FastAPI(
          "description": "This is the log_event route"}])
 
 
+def connect_to_db(db):
+    connection = sqlite3.connect(db)
+    connection.row_factory = sqlite3.Row
+    return connection
+
+
 @api.get('/', tags = ["home"]) # default route
 def get_home():
     """
@@ -36,10 +42,8 @@ def get_home():
     """
     return {"Welcome to our API. This is a work in progress."}
 
-def connect_to_db(db):
-    connection = sqlite3.connect(db)
-    connection.row_factory = sqlite3.Row
-    return connection
+
+
 
 @api.post("/new_user", tags = ["new_user"])
 def new_user(user: User):
@@ -65,6 +69,16 @@ def new_user(user: User):
     conn.close()
     return {None}
     
+    
+@api.delete("/delete_user", tags = ["delete_user"])
+def delete_user(user: User):
+    return {f"When this route grows up it will delete the user: {user}"}
+
+
+@api.patch("update_user", tags = ["update_user"])
+def update_user(user: User):
+    return {f"When this route grows up it will update the user: {user}"}
+
 
 @api.post("/new_rating", tags = ["new_rating"])
 def new_rating(rating: Rating):
@@ -74,7 +88,6 @@ def new_rating(rating: Rating):
     return {f"When this route grows up it will add the new rating: {rating}"}
 
 
-
 @api.post("/recommendation_system", tags = ["recommendation"])
 def recommendation_system(credentials: Credentials, movieid, ):
     """
@@ -82,7 +95,6 @@ def recommendation_system(credentials: Credentials, movieid, ):
     """
     
     return {f"When this route grows up it will provide recommendations for this movie: {movieid}"}
-
 
 
 @api.post("/log_event", tags = ["log_event"])
