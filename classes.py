@@ -1,17 +1,21 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, SecretStr, constr, conint
 from typing import Optional
 
 # define User class
 class User(BaseModel):
     userid: Optional[int] = None
     name: str
-    email: str
-    password: str
+    email: EmailStr
+    password: SecretStr
+    _password_min_length = constr(min_length=6)
+
   
 # define credentials class for authentication 
 class Credentials(BaseModel):
     userid: str
-    password: str
+    password: SecretStr
+    _password_min_length = constr(min_length=6)
+
 
 # define class for logging activity
 class Event(BaseModel):
@@ -26,7 +30,7 @@ class Event(BaseModel):
 class Rating(BaseModel):
     userid: int
     movieid: int
-    rating: float
+    rating: conint(ge=1, le=5)
 
     
 
