@@ -138,7 +138,7 @@ def test_recommendation_system_format():
 
     assert isinstance(df, DataFrame)
     assert df.shape[0] == 20
-    assert df.shape[1] == 3 # TODO :  check la valeur renvoyée
+    assert df.shape[1] == 1
 
 
 ### Log event
