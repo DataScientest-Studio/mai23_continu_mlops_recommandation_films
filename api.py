@@ -1,10 +1,9 @@
 import pandas as pd
 import numpy as np  
 import pickle 
-# import uvicorn
 from fastapi import FastAPI
 from classes import User, Credentials, Rating, Event
-#from recommendation_system import hybrid_recommendation_movies
+from api_recommendation import hybrid_recommendation_movies
 import sqlite3
 
 
@@ -17,7 +16,7 @@ api = FastAPI(
     description = "This is a Recommendation System API",
     version = "0.1.1",
     openapi_tags = [
-        {"name": "Home",
+        {"name": "home",
          "description": "This is the Home route"},
         {"name": "new_user",
          "description": "This is the new_user route"},
@@ -88,13 +87,15 @@ def new_rating(rating: Rating):
     return {f"When this route grows up it will add the new rating: {rating}"}
 
 
-@api.post("/recommendation_system", tags = ["recommendation"])
-def recommendation_system(credentials: Credentials, movieid, ):
+@api.post("/recommendation_system", tags = ["recommendation_system"])
+async def recommendation_system(userid : int, movie : str):
     """
     This is the recommendation_system route
     """
+
+    recommendation_movies = hybrid_recommendation_movies(userid,movie)
     
-    return {f"When this route grows up it will provide recommendations for this movie: {movieid}"}
+    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
 
 
 @api.post("/log_event", tags = ["log_event"])
