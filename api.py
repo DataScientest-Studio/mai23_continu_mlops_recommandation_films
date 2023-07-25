@@ -71,7 +71,22 @@ def new_user(user: User):
     
 @api.delete("/delete_user", tags = ["delete_user"])
 def delete_user(user: User):
-    return {f"When this route grows up it will delete the user: {user}"}
+    """
+    This is the delete_user route
+    """
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    success = False
+    try:
+        cursor.execute(f"DELETE FROM users WHERE userid = ?", (user.userid,))
+        conn.commit()
+        success = True
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return {f"Success: {success}"}
 
 
 @api.patch("update_user", tags = ["update_user"])
