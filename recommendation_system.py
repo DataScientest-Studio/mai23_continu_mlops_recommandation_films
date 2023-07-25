@@ -95,7 +95,7 @@ def preprocessing_data():
     df_imdb.rename(columns= {'tconst' : 'imdbId'}, inplace = True)
     
     # merge df_movie_lens et df_imdb
-    df_merged = df_movie_lens.merge(right = df_imdb, how = 'inner', on = 'imdbId')
+    df_merged = df_movie_lens.merge(right = df_imdb, how = 'right', on = 'imdbId')
 
     # regrouper les colonnes actor et actress en une seule et remplacer les cases vides par des NaN
     df_merged['actors'] = df_merged['actor'].str.cat(df_merged['actress'],na_rep = '', sep=' ')
@@ -103,7 +103,7 @@ def preprocessing_data():
     
     #suppression des colonnes inutiles, des données manquantes
     df_merged.drop(columns = ['endYear','title','originalTitle','genres_x','imdbId','isAdult','actor','actress', 'directors', 'writers'],inplace = True)
-    df_merged.dropna(inplace = True)
+    #df_merged.dropna(inplace = True)
     
     # changement de type de la variable runtimeMinutes
     df_merged['runtimeMinutes'] = df_merged['runtimeMinutes'].astype('int')
@@ -116,8 +116,8 @@ def preprocessing_data():
 df_merged = preprocessing_data()
 
 def separate_df():
-    collab_filtering = df_merged.iloc[:,[0,1,2]] #userId,movieId,ratings
-    content_based_filtering = df_merged.iloc[:,[0,1,3,5,7,8,9,10,11,12]] #userId,movieId, averageRating, titleType, startYear,runtimeMinutes,genres, director, writer, actors
+    collab_filtering = df_merged.iloc[:,[0,1,2]].dropna() #userId,movieId,ratings
+    content_based_filtering = df_merged.iloc[:,[0,1,3,5,7,8,9,10,11,12]].dropna() #userId,movieId, averageRating, titleType, startYear,runtimeMinutes,genres, director, writer, actors
     return collab_filtering,content_based_filtering
 
 collab_filtering,content_based_filtering = separate_df()
@@ -125,7 +125,7 @@ collab_filtering,content_based_filtering = separate_df()
 
 
 
-#############################################################################hybrid_recommendation_system#################################################################################
+#############################################################################models preprocessing and training#################################################################################
 
 def preprocessing_content_based_filtering():
     
@@ -180,11 +180,11 @@ def preprocessing_content_based_filtering():
 
 content_based_filtering, movies, movies_index,content_based_filtering_duplicated = preprocessing_content_based_filtering()
 
-collab_filtering = pd.read_pickle('collab_filtering_df.pkl')
-content_based_filtering_duplicated = pd.read_pickle('content_based_filtering_df.pkl')
-movies = pd.read_pickle('movies.pkl')
-movies_index = pd.read_pickle('movies_index.pkl')
-df_merged = pd.read_pickle('df_merged.pkl')
+collab_filtering.to_pickle('./data/loaded_api_datasets/collab_filtering_df.pkl')
+content_based_filtering_duplicated.to_pickle('./data/loaded_api_datasets/content_based_filtering_df.pkl')
+movies.to_pickle('./data/loaded_api_datasets/movies.pkl')
+movies_index.to_pickle('./data/loaded_api_datasets/movies_index.pkl')
+df_merged.to_pickle('./data/loaded_api_datasets/df_merged.pkl')
 
 # entraînement des modèles
 
@@ -228,3 +228,4 @@ svd,rmse_svd = train_svd()
 
 np.save('./data/loaded_api_datasets/kneighbors_results',kneighbors_50)
 joblib.dump(svd,'./data/loaded_api_datasets/svd_model.pkl')
+
