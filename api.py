@@ -53,7 +53,7 @@ def new_user(user: User):
     cursor = conn.cursor()
     
     try:
-        cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)",(user.name, user.email, user.password))
+        cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)",(user.name, user.email, user.password.get_secret_value()))
         new_user_id = cursor.lastrowid
         conn.commit()
         return {"userid": new_user_id}
