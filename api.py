@@ -1,6 +1,5 @@
 import pandas as pd
 import numpy as np  
-import pickle 
 from fastapi import FastAPI
 from classes import User, Credentials, Rating, Event
 from api_recommendation import hybrid_recommendation_movies
@@ -51,9 +50,10 @@ def new_user(user: User):
     """
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
-    
     try:
-        cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)",(user.name, user.email, user.password.get_secret_value()))
+
+        cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)", (user.name, user.email, user.password.get_secret_value()))
+
         new_user_id = cursor.lastrowid
         conn.commit()
         return {"userid": new_user_id}

@@ -5,14 +5,6 @@ with open("schema.sql", "r") as file:
 # print(schema)    
 connection = sqlite3.connect('database.db')
 
-# cursor = connection.cursor()
-# 
-# cursor.execute("DROP TABLE IF EXISTS users")
-# cursor.execute("DROP TABLE IF EXISTS log")
-# 
-# cursor.execute("CREATE TABLE users (userid INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, password TEXT NOT NULL)")
-# cursor.execute("CREATE TABLE log (entryid INTEGER PRIMARY KEY AUTOINCREMENT,logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, userid INTEGER NOT NULL, activity TEXT NOT NULL, response_code INTEGER NOT NULL, response_message TEXT NOT NULL, result TEXT NOT NULL)")                    
-
 
 cursor = connection.cursor()
 
@@ -25,7 +17,7 @@ cursor.executescript("""
         name TEXT NOT NULL,
         email TEXT NOT NULL,
         password TEXT NOT NULL);
-    CREATE TABLE activity_log (entryid INTEGER PRIMARY KEY AUTOINCREMENT,
+    CREATE TABLE activity_log (entryid INTEGER PRIMARY KEY,
         logged_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP, 
         userid INTEGER NOT NULL, 
         activity TEXT NOT NULL, 
