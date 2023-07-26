@@ -92,8 +92,8 @@ async def recommendation_system(userid : int, movie : str):
 
     input : 
     
-        userid : int
-        movie : string
+        userid : integer
+        movie_title : string
 
     Return movies from a recommendation system
     """
