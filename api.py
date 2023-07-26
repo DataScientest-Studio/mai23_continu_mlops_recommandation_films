@@ -51,9 +51,7 @@ def new_user(user: User):
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
     try:
-
         cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)", (user.name, user.email, user.password.get_secret_value()))
-
         new_user_id = cursor.lastrowid
         conn.commit()
         return {"userid": new_user_id}
@@ -90,7 +88,14 @@ def new_rating(rating: Rating):
 @api.post("/recommendation_system", tags = ["recommendation_system"])
 async def recommendation_system(userid : int, movie : str):
     """
-    This is the recommendation_system route
+    This is the recommendation_system route.
+
+    input : 
+    
+        userid : int
+        movie : string
+
+    Return movies from a recommendation system
     """
 
     recommendation_movies = hybrid_recommendation_movies(userid,movie)
