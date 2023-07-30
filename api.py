@@ -1,8 +1,8 @@
 import pandas as pd
 import numpy as np  
 from fastapi import FastAPI
-from classes import User, Credentials, Rating, Event
-from api_recommendation import hybrid_recommendation_movies
+from classes import User, Event
+#from api_recommendation import hybrid_recommendation_movies
 import sqlite3
 
 
@@ -13,18 +13,24 @@ import sqlite3
 api = FastAPI(
     title = "API project Recommnendation System, MLOps May 2023",
     description = "This is a Recommendation System API",
-    version = "0.1.1",
+    version = "0.2.1",
+    version_detail  = "addition of delete_user route",
     openapi_tags = [
         {"name": "home",
          "description": "This is the Home route"},
         {"name": "new_user",
          "description": "This is the new_user route"},
+        {"name": "delete_user",
+         "description": "This is the delete_user route"},
+        {"name": "update_user",
+         "description": "This is the update_user route"},
         {"name": "new_rating",
          "description": "This is the new_rating route"},
         {"name": "recommendation_system",
          "description": "This is the Recommendation System route"},
         {"name": "log_event",
-         "description": "This is the log_event route"}])
+         "description": "This is the log_event route"},]
+)
 
 
 def connect_to_db(db):
@@ -87,17 +93,55 @@ def delete_user(user: User):
     return {f"Success: {success}"}
 
 
-@api.patch("update_user", tags = ["update_user"])
-def update_user(user: User):
-    return {f"When this route grows up it will update the user: {user}"}
+@api.patch("/update_user/", tags = ["update_user"])
+def update_user(update: User, field: str):
+    """
+    This is the update_user route
+    """
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    success = False
+    value = ""
+    if field == "name":
+        try:
+            value = update.name
+            cursor.execute(f"UPDATE users SET name = ? WHERE userid = ?", (value, update.userid))
+            conn.commit()
+            success = True
+        except sqlite3.OperationalError:
+            print("Operational issue")
+        except sqlite3.DatabaseError:
+            print("Database error")
+    if field == "email":
+        value = update.email
+        try:
+            cursor.execute(f"UPDATE users SET email = ? WHERE userid = ?", (value, update.userid))
+            conn.commit()
+            success = True
+        except sqlite3.OperationalError:
+            print("Operational issue")
+        except sqlite3.DatabaseError:
+            print("Database error")
+    if field == "password":
+        try:
+            value = update.password.get_secret_value()
+            cursor.execute(f"UPDATE users SET password = ? WHERE userid = ?", (value, update.userid))
+            conn.commit()
+            success = True
+        except sqlite3.OperationalError:
+            print("Operational issue")
+        except sqlite3.DatabaseError:
+            print("Database error")
+    conn.close()
+    return {f"Success: {success}"}
 
 
-@api.post("/new_rating", tags = ["new_rating"])
-def new_rating(rating: Rating):
-    """
-    This is the new_rating route
-    """
-    return {f"When this route grows up it will add the new rating: {rating}"}
+#@api.post("/new_rating", tags = ["new_rating"])
+#def new_rating(rating: Rating):
+#    """
+#    This is the new_rating route
+#    """
+#    return {f"When this route grows up it will add the new rating: {rating}"}
 
 
 @api.post("/recommendation_system", tags = ["recommendation_system"])
@@ -113,9 +157,9 @@ async def recommendation_system(userid : int, movie : str):
     Return movies from a recommendation system
     """
 
-    recommendation_movies = hybrid_recommendation_movies(userid,movie)
+#    recommendation_movies = hybrid_recommendation_movies(userid,movie)
     
-    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
+#    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
 
 
 @api.post("/log_event", tags = ["log_event"])
