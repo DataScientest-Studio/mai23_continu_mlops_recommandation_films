@@ -13,8 +13,9 @@ import sqlite3
 api = FastAPI(
     title = "API project Recommnendation System, MLOps May 2023",
     description = "This is a Recommendation System API",
-    version = "0.2.1",
-    version_detail  = "addition of delete_user route",
+    version = "0.4.1",
+    version_detail  = "1. addition of routes: new_rating, delete_ratings (all for a given user), update rating.\
+                        2. change of ratings class and db table to multiple-column key",
     openapi_tags = [
         {"name": "home",
          "description": "This is the Home route"},
@@ -152,11 +153,12 @@ def new_rating(rating: Rating):
     """
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
+    success = False
     try:
-        cursor.execute(f"INSERT INTO ratings (userid, movieid, rating) VALUES (?,?,?)", (rating.userid, rating.movieid, rating.rating))
-        new_rating_id = cursor.lastrowid
+        cursor.execute(f"INSERT INTO ratings (userid, movieid, date, rating) VALUES (?,?,?)", (rating.userid, rating.movieid, rating.date, rating.rating))
+        # new_rating_id = cursor.lastrowid
         conn.commit()
-        return {"ratingid": new_rating_id}
+        success = True
     except sqlite3.IntegrityError:
         print("Rating already exists for this film by this user.")
     except sqlite3.ProgrammingError:
@@ -166,7 +168,7 @@ def new_rating(rating: Rating):
     except sqlite3.DatabaseError:
         print("Database error")
     conn.close()
-    return {None}
+    return {"Success:":success}
 
 
 @api.delete("/delete_ratings", tags = ["delete_ratings"])
@@ -186,7 +188,7 @@ def delete_ratings(user: User):
     return {f"Success: {success}"}
 
 @api.patch("/update_rating/", tags = ["update_rating"])
-def update_rating(new_rating: Rating):
+def update_rating(update: Rating):
     """
     This is the update_rating route
     """
@@ -194,7 +196,7 @@ def update_rating(new_rating: Rating):
     cursor = conn.cursor()
     success = False
     try:
-        cursor.execute(f"UPDATE users SET rating = ? WHERE userid = ? AND movieid = ?", (new_rating.rating, new_rating.userid, new_rating.movieid))
+        cursor.execute(f"UPDATE users SET rating = ? WHERE userid = ? AND movieid = ? AND date = ?", (update.rating, update.userid, update.movieid, update.date))
         conn.commit()
         success = True
     except sqlite3.OperationalError:
@@ -219,9 +221,9 @@ async def recommendation_system(userid : int, movie : str):
     Return movies from a recommendation system
     """
 
-    recommendation_movies = hybrid_recommendation_movies(userid,movie)
+    #recommendation_movies = hybrid_recommendation_movies(userid,movie)
     
-    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
+    #return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
 
 
 @api.post("/log_event", tags = ["log_event"])

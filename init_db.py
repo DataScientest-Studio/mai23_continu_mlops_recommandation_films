@@ -42,10 +42,11 @@ print(cursor.fetchall())
 cursor.executescript("""
     DROP TABLE IF EXISTS ratings;
     CREATE TABLE ratings (
-        ratingid INTEGER PRIMARY KEY NOT NULL,
         userid INTEGER NOT NULL,
+        movieid INTEGER NOT NULL,
         date DATE NOT NULL,
-        rating INTEGER NOT NULL)
+        rating INTEGER NOT NULL,
+        PRIMARY KEY (userid, movieid, date)
     """)
 
 rating0 = (0,

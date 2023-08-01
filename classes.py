@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr, SecretStr, constr, conint
 from typing import Optional
+import datetime as dt
 
 # define User class
 class User(BaseModel):
@@ -40,10 +41,11 @@ class Rating(BaseModel):
     new_rating by userid from a movieid
 
     """
-    ratingid: Optional[int] = None
     userid: int
     movieid: int
-    rating: conint(ge=0,le=5)
+    date: dt.datetime
+    rating: int
+    _rating_range = conint(ge=0,le=5)
 
 
 
