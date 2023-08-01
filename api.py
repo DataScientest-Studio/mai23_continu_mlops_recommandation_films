@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np  
 from fastapi import FastAPI
-from classes import User, Event
+from classes import User, Event, Rating
 #from api_recommendation import hybrid_recommendation_movies
 import sqlite3
 
@@ -26,6 +26,10 @@ api = FastAPI(
          "description": "This is the update_user route"},
         {"name": "new_rating",
          "description": "This is the new_rating route"},
+        {"name": "delete_ratings",
+         "description": "This is the delete_ratings route"},
+        {"name": "update_rating",
+         "description": "This is the update_rating route"},
         {"name": "recommendation_system",
          "description": "This is the Recommendation System route"},
         {"name": "log_event",
@@ -38,7 +42,7 @@ def connect_to_db(db):
     connection.row_factory = sqlite3.Row
     return connection
 
-
+    
 @api.get('/', tags = ["home"]) # default route
 def get_home():
     """
@@ -56,6 +60,7 @@ def new_user(user: User):
     """
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
+    success = False
     try:
         cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)", (user.name, user.email, user.password.get_secret_value()))
         new_user_id = cursor.lastrowid
@@ -72,6 +77,8 @@ def new_user(user: User):
     conn.close()
     return {None}
     
+
+    
     
 @api.delete("/delete_user", tags = ["delete_user"])
 def delete_user(user: User):
@@ -83,6 +90,7 @@ def delete_user(user: User):
     success = False
     try:
         cursor.execute(f"DELETE FROM users WHERE userid = ?", (user.userid,))
+        cursor.execute(f"DELETE FROM ratings WHERE userid = ?", (user.userid,))
         conn.commit()
         success = True
     except sqlite3.OperationalError:
@@ -103,8 +111,8 @@ def update_user(update: User, field: str):
     success = False
     value = ""
     if field == "name":
+        value = update.name
         try:
-            value = update.name
             cursor.execute(f"UPDATE users SET name = ? WHERE userid = ?", (value, update.userid))
             conn.commit()
             success = True
@@ -123,8 +131,8 @@ def update_user(update: User, field: str):
         except sqlite3.DatabaseError:
             print("Database error")
     if field == "password":
+        value = update.password.get_secret_value()
         try:
-            value = update.password.get_secret_value()
             cursor.execute(f"UPDATE users SET password = ? WHERE userid = ?", (value, update.userid))
             conn.commit()
             success = True
@@ -136,13 +144,67 @@ def update_user(update: User, field: str):
     return {f"Success: {success}"}
 
 
-#@api.post("/new_rating", tags = ["new_rating"])
-#def new_rating(rating: Rating):
-#    """
-#    This is the new_rating route
-#    """
-#    return {f"When this route grows up it will add the new rating: {rating}"}
+@api.post("/new_rating", tags = ["new_rating"])
+def new_rating(rating: Rating):
+    """
+    This is the new_rating route
+    
+    """
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    try:
+        cursor.execute(f"INSERT INTO ratings (userid, movieid, rating) VALUES (?,?,?)", (rating.userid, rating.movieid, rating.rating))
+        new_rating_id = cursor.lastrowid
+        conn.commit()
+        return {"ratingid": new_rating_id}
+    except sqlite3.IntegrityError:
+        print("Rating already exists for this film by this user.")
+    except sqlite3.ProgrammingError:
+        print("SQL syntax error")
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return {None}
 
+
+@api.delete("/delete_ratings", tags = ["delete_ratings"])
+def delete_ratings(user: User):
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    success = False
+    try:
+        cursor.execute(f"DELETE FROM ratings WHERE userid = ?", (user.userid,))
+        conn.commit()
+        success = True
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return {f"Success: {success}"}
+
+@api.patch("/update_rating/", tags = ["update_rating"])
+def update_rating(new_rating: Rating):
+    """
+    This is the update_rating route
+    """
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    success = False
+    try:
+        cursor.execute(f"UPDATE users SET rating = ? WHERE userid = ? AND movieid = ?", (new_rating.rating, new_rating.userid, new_rating.movieid))
+        conn.commit()
+        success = True
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")    
+    return {f"Success: {success}"}
+
+
+        
 
 @api.post("/recommendation_system", tags = ["recommendation_system"])
 async def recommendation_system(userid : int, movie : str):
@@ -157,9 +219,9 @@ async def recommendation_system(userid : int, movie : str):
     Return movies from a recommendation system
     """
 
-#    recommendation_movies = hybrid_recommendation_movies(userid,movie)
+    recommendation_movies = hybrid_recommendation_movies(userid,movie)
     
-#    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
+    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
 
 
 @api.post("/log_event", tags = ["log_event"])
