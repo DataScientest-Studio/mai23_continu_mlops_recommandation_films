@@ -3,6 +3,10 @@ from typing import Optional
 
 # define User class
 class User(BaseModel):
+    """
+    user's information from the database
+    
+    """
     userid: Optional[int] = None
     name: str
     email: EmailStr
@@ -11,10 +15,14 @@ class User(BaseModel):
 
   
 # define credentials class for authentication 
-class Credentials(BaseModel):
-    userid: str
-    password: SecretStr
-    _password_min_length = constr(min_length=6)
+#class Credentials(BaseModel):
+#    """
+#    list of userid and password for authentication
+#
+#    """
+#    userid: str
+#    password: SecretStr
+#    _password_min_length = constr(min_length=6)
 
 
 # define class for logging activity
@@ -28,9 +36,16 @@ class Event(BaseModel):
     
 # define class for ratings 
 class Rating(BaseModel):
+    """
+    new_rating by userid from a movieid
+
+    """
+    ratingid: Optional[int] = None
     userid: int
     movieid: int
-    rating: conint(ge=1, le=5)
+    rating: conint(ge=0,le=5)
+
+
 
     
 
