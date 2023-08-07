@@ -15,4 +15,4 @@ def refresh_IMDB_dataset(refresh = False):
         
         #télécharger les fichiers IMDB les plus récents
         for url in list_url:
-            wget.download(url, out = './data/IMDB/')
+            wget.download(url, out = '../data/IMDB/')

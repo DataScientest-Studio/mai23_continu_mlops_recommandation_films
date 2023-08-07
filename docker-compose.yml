@@ -1,0 +1,9 @@
+version: '3.9'
+services:
+  api:
+    image: api:1.0.0
+    container_name: fastapi
+    ports: 
+      - "8000:8000"
+    volumes:
+      - ./data/loaded_api_datasets/:/data/loaded_api_datasets/
