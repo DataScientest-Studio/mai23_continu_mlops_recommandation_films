@@ -108,8 +108,8 @@ def preprocessing_data():
     
     #remplacement des ',' par des espaces afin d'utiliser ci-après la fonction tfid vectorizer
     df_merged['genres_y'].replace({',':' '}, regex = True, inplace = True)
-    #retourner les films uniquement
-    return df_merged[df_merged['titleType']=='movie']
+    #retourner les films uniquement à partir des années 2000 (réduire la base de données)
+    return df_merged[(df_merged['titleType']=='movie') & (df_merged['startYear']>=2000)]
 
 df_merged = preprocessing_data()
 

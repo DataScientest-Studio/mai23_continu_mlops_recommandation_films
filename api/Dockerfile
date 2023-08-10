@@ -3,6 +3,4 @@ WORKDIR /app
 COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-EXPOSE 8000
-VOLUME /data/loaded_api_datasets/
-CMD ["uvicorn","api:api","--reload"]
+CMD ["uvicorn","api:api","--host", "0.0.0.0","--port","8000","--reload"]
