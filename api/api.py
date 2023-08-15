@@ -80,7 +80,7 @@ def new_user(user: User):
 
     
     
-@api.delete("/delete_user", tags = ["delete_user_1"])
+@api.delete("/delete_user", tags = ["delete_user"])
 def delete_user(user: User):
     """
     This is the delete_user route
