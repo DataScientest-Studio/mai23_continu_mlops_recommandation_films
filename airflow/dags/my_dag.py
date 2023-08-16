@@ -11,8 +11,9 @@ import urllib.request
 my_dag = DAG(
     dag_id = 'my_dag_recommendation',
     description = 'DAG permettant de mettre à jour toutes les semaines les données IMDB',
-    schedule_interval = '0 0 * * 1',
+    schedule_interval = '@weekly',
     tags = ['recommendation_system'],
+    catchup= True,
     default_args = {
         'owner' : 'airflow',
         'start_date' : datetime.datetime(2023,8,13)
