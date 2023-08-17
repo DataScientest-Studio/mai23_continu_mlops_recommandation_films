@@ -13,9 +13,9 @@ import sqlite3
 api = FastAPI(
     title = "API project Recommnendation System, MLOps May 2023",
     description = "This is a Recommendation System API",
-    version = "0.4.1",
-    version_detail  = "1. addition of routes: new_rating, delete_ratings (all for a given user), update rating.\
-                        2. change of ratings class and db table to multiple-column key",
+    version = "0.5.1",
+    version_detail  = "1. addition of routes: login, get_user, delete_rating (for specific userid+movieid+date combo)\
+                        2. check_password function (for login)",
     openapi_tags = [
         {"name": "home",
          "description": "This is the Home route"},
@@ -43,15 +43,27 @@ def connect_to_db(db):
     connection.row_factory = sqlite3.Row
     return connection
 
-    
+
+def check_password(user:User):
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    password = ""
+    try:
+        password = cursor.execute(f"SELECT password WHERE userid = ?", (user.userid,))
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return (password == user.password)  
+
+  
 @api.get('/', tags = ["home"]) # default route
 def get_home():
     """
     This is the home route
     """
     return {"Welcome to our API. This is a work in progress."}
-
-
 
 
 @api.post("/new_user", tags = ["new_user"])
@@ -66,7 +78,8 @@ def new_user(user: User):
         cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)", (user.name, user.email, user.password.get_secret_value()))
         new_user_id = cursor.lastrowid
         conn.commit()
-        return {"userid": new_user_id}
+        success = True
+        return {"Success": success,"userid": new_user_id}
     except sqlite3.IntegrityError:
         print("User already exists")
     except sqlite3.ProgrammingError:
@@ -76,10 +89,34 @@ def new_user(user: User):
     except sqlite3.DatabaseError:
         print("Database error")
     conn.close()
-    return {None}
-    
+    return {"Success": success}
 
-    
+
+@api.get("/login", tags = ["login"])
+def login(user: User):
+    success = check_password(user)
+    return {"Success": success}
+
+
+@api.get("/get_user", tags = ["get_user"])
+def get_user(userid: int):
+    """
+    This is the get_user route
+    """
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    user = None
+    success = False
+    try:
+        cursor.execute(f"SELECT * FROM users WHERE userid = ?", (userid,))
+        user = cursor.fetchone()
+        success = True
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return {"Success": success, "User": user}
     
 @api.delete("/delete_user", tags = ["delete_user"])
 def delete_user(user: User):
@@ -99,7 +136,7 @@ def delete_user(user: User):
     except sqlite3.DatabaseError:
         print("Database error")
     conn.close()
-    return {f"Success: {success}"}
+    return {"Success": success}
 
 
 @api.patch("/update_user/", tags = ["update_user"])
@@ -142,7 +179,7 @@ def update_user(update: User, field: str):
         except sqlite3.DatabaseError:
             print("Database error")
     conn.close()
-    return {f"Success: {success}"}
+    return {"Success": success}
 
 
 @api.post("/new_rating", tags = ["new_rating"])
@@ -155,8 +192,8 @@ def new_rating(rating: Rating):
     cursor = conn.cursor()
     success = False
     try:
-        cursor.execute(f"INSERT INTO ratings (userid, movieid, date, rating) VALUES (?,?,?)", (rating.userid, rating.movieid, rating.date, rating.rating))
-        # new_rating_id = cursor.lastrowid
+        cursor.execute(f"INSERT INTO ratings (userid, movieid, date, rating) VALUES (?,?,?,?)", (rating.userid, rating.movieid, rating.date, rating.rating))
+        # new_rating_id = cursor.lastrowid REMOVE WHEN SURE NO LONGER NEEDED
         conn.commit()
         success = True
     except sqlite3.IntegrityError:
@@ -168,7 +205,27 @@ def new_rating(rating: Rating):
     except sqlite3.DatabaseError:
         print("Database error")
     conn.close()
-    return {"Success:":success}
+    return {"Success": success}
+
+
+@api.delete("/delete_rating", tags = ["delete_rating"])
+def delete_rating(rating: Rating):
+    """
+    This is the delete_rating route
+    """
+    conn = connect_to_db("database.db")
+    cursor = conn.cursor()
+    success = False
+    try:
+        cursor.execute(f"DELETE FROM ratings WHERE userid = ? AND movieid = ? AND date = ?", (rating.userid, rating.movieid, rating.date))
+        conn.commit()
+        success = True
+    except sqlite3.OperationalError:
+        print("Operational issue")
+    except sqlite3.DatabaseError:
+        print("Database error")
+    conn.close()
+    return {"Success": success}
 
 
 @api.delete("/delete_ratings", tags = ["delete_ratings"])
@@ -185,7 +242,7 @@ def delete_ratings(user: User):
     except sqlite3.DatabaseError:
         print("Database error")
     conn.close()
-    return {f"Success: {success}"}
+    return {"Success": success}
 
 @api.patch("/update_rating/", tags = ["update_rating"])
 def update_rating(update: Rating):
@@ -203,9 +260,7 @@ def update_rating(update: Rating):
         print("Operational issue")
     except sqlite3.DatabaseError:
         print("Database error")    
-    return {f"Success: {success}"}
-
-
+    return {"Success": success}
         
 
 @api.post("/recommendation_system", tags = ["recommendation_system"])
