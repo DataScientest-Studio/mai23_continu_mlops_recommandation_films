@@ -47,17 +47,18 @@ def connect_to_db(db):
 def check_password(user:User):
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
-    password = ""
+    password = None
     try:
-        password = cursor.execute(f"SELECT password WHERE userid = ?", (user.userid,))
-        password = password.fetchone()
-        print(password)
+        cursor.execute(f"SELECT * FROM users WHERE userid = ?", (user.userid,))
+        password = cursor.fetchone()
+        #print(password["password"])
     except sqlite3.OperationalError:
         print("Operational issue")
     except sqlite3.DatabaseError:
         print("Database error")
     conn.close()
-    return (password == user.password.get_secret_value())  
+    check = password == user.password.get_secret_value()
+    return check  
 
   
 @api.get('/', tags = ["home"]) # default route
@@ -94,8 +95,10 @@ def new_user(user: User):
     return {"Success": success}
 
 
-@api.get("/login", tags = ["login"])
+@api.put("/login", tags = ["login"])
 def login(user: User):
+    print(user)
+    success = False
     success = check_password(user)
     return {"Success": success}
 
@@ -113,7 +116,7 @@ def get_user(userid: int):
     try:
         cursor.execute(f"SELECT * FROM users WHERE userid = ?", (userid,))
         user_data = cursor.fetchone()
-        print(user_data["name"], user_data["email"], user_data["password"])
+        #print(user_data["name"], user_data["email"], user_data["password"])
         user = User(userid = user_data["userid"], name = user_data["name"], email = user_data["email"], password = user_data["password"])
         success = True
     except sqlite3.OperationalError:
