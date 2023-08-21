@@ -36,11 +36,10 @@ def refresh_IMDB_dataset():
     file_name = ['title.principals.tsv.gz','title.ratings.tsv.gz','title.crew.tsv.gz','title.basics.tsv.gz']
 
     #télécharger les fichiers IMDB les plus récents
-    for url in list_url:
-        for i in range(4):
-            with urllib.request.urlopen(url) as file:
-                with open(file = '../../data/IMDB/{}'.format(file_name[i]),mode = 'wb') as new_file:
-                    new_file.write(file.read())
+    for i in range(4):
+        with urllib.request.urlopen(list_url[i]) as file:
+            with open(file = '../../data/IMDB/{}'.format(file_name[i]),mode = 'wb') as new_file:
+                new_file.write(file.read())
 
 
 my_refresh_task = PythonOperator(
