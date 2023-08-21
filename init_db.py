@@ -47,6 +47,7 @@ cursor.executescript("""
         date DATE NOT NULL,
         rating INTEGER NOT NULL,
         PRIMARY KEY (userid, movieid, date)
+        )
     """)
 
 rating0 = (0,
