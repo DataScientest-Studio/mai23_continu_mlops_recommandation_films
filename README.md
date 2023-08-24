@@ -30,9 +30,9 @@ Une fois ces deux bases de données nettoyées et liées, nous avons un datafram
 ## API
 Afin de faire fonctionner l'API, il faudra se placer dans le répertoire contenant le fichier api.py et lancer la commande depuis son terminal : 
 
-'''
+```
 uvicorn api:api --reload
-'''
+```
 
 Une fois rendu sur l'url **localhost:8000**, plusieurs routes existent afin de répondre aux besoins des clients: un besoin lié aux informations des utilisateurs, un besoin lié aux notes mises sur les films et le système de recommendation en lui même.
 
