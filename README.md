@@ -1,9 +1,5 @@
 # Système de recommandation de films
 
-
-The README.md file is a central element of any git repository. It allows you to present your project, its objectives, and to explain how to install and launch the project, or even how to contribute to it.
-
-
 Ce dépôt GitHub contient tout le code nécessaire pour le bon fonctionnement du projet que l'on a nommé **Movie-Recommendation**. Ce projet fil-rouge a été mené lors de notre formation [MLOPS](https://datascientest.com/formation-ml-ops) chez [DataScientest](https://datascientest.com/).
 
 L'objectif est de mener à bien un projet de data science et d'élaborer un système de recommandation de films utilisable et destiné spécifiquement à notre future clientèle comme le ferait déjà certaines plateformes comme Netflix. Cela consiste donc en la création d'un modèle de Machine Learning prédisant une liste de films à partir de certaines informations rentrées en paramètres (userId,film, historique propre à chaque userId, etc), à sa mise en production et à son déploiement pour notre futur public. Nous allons donc utiliser certains outils comme une API, un système de conteneurisation comme Docker et des outils de déploiement et de monitoring (MLFlow, AirFlow, etc).
