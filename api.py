@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np  
 from fastapi import FastAPI
 from classes import User, Event, Rating
-#from api_recommendation import hybrid_recommendation_movies
+from api_recommendation import hybrid_recommendation_movies
 import sqlite3
 
 
@@ -85,6 +85,7 @@ def new_user(user: User):
         return {"Success": success,"userid": new_user_id}
     except sqlite3.IntegrityError:
         print("User already exists")
+        return {"User already exists"}
     except sqlite3.ProgrammingError:
         print("SQL syntax error")
     except sqlite3.OperationalError:
@@ -147,6 +148,9 @@ def delete_user(user: User):
     return {"Success": success}
 
 
+from fastapi import HTTPException
+
+
 @api.patch("/update_user/", tags = ["update_user"])
 def update_user(update: User, field: str):
     """
@@ -166,7 +170,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    if field == "email":
+        conn.close()
+        return {f"Success: {success}"}
+    elif field == "email":
         value = update.email
         try:
             cursor.execute(f"UPDATE users SET email = ? WHERE userid = ?", (value, update.userid))
@@ -176,7 +182,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    if field == "password":
+        conn.close()
+        return {f"Success: {success}"}
+    elif field == "password":
         value = update.password.get_secret_value()
         try:
             cursor.execute(f"UPDATE users SET password = ? WHERE userid = ?", (value, update.userid))
@@ -186,8 +194,14 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    conn.close()
-    return {"Success": success}
+
+        conn.close()
+        return {f"Success: {success}"}
+    else:
+        conn.close()
+        raise HTTPException(status_code=400, detail=f"Invalid field: {field}")
+
+        
 
 
 @api.post("/new_rating", tags = ["new_rating"])
@@ -272,7 +286,7 @@ def update_rating(update: Rating):
         
 
 @api.post("/recommendation_system", tags = ["recommendation_system"])
-async def recommendation_system(userid : int, movie : str):
+async def recommendation_system(userId : int, movie : str):
     """
     This is the recommendation_system route.
 
@@ -284,7 +298,9 @@ async def recommendation_system(userid : int, movie : str):
     Return movies from a recommendation system
     """
 
-    #recommendation_movies = hybrid_recommendation_movies(userid,movie)
+
+    recommendation_movies = hybrid_recommendation_movies(userId,movie)
+
     
     #return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
 

@@ -10,8 +10,7 @@ movies = pd.read_pickle('./data/loaded_api_datasets/movies.pkl')
 movies_index = pd.read_pickle('./data/loaded_api_datasets/movies_index.pkl')
 df_merged = pd.read_pickle('./data/loaded_api_datasets/df_merged.pkl')
 
-def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, svd_model=svd_model,kneighbors_50 = kneighbors_results,
-                                 ):
+def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, svd_model=svd_model,kneighbors_50 = kneighbors_results):
     """
     userId : identifiant de l'utilisateur ;
     movie : nom du film ; 
