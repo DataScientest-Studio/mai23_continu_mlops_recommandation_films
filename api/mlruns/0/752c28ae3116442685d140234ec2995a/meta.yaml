@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/0/752c28ae3116442685d140234ec2995a/artifacts
+end_time: 1692950733044
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: 752c28ae3116442685d140234ec2995a
+run_name: thundering-lark-316
+run_uuid: 752c28ae3116442685d140234ec2995a
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692950346155
+status: 3
+tags: []
+user_id: antho

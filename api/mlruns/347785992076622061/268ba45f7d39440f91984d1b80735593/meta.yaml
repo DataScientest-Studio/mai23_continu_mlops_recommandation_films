@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/268ba45f7d39440f91984d1b80735593/artifacts
+end_time: 1692950794248
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: 268ba45f7d39440f91984d1b80735593
+run_name: nosy-vole-975
+run_uuid: 268ba45f7d39440f91984d1b80735593
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692950739091
+status: 3
+tags: []
+user_id: antho

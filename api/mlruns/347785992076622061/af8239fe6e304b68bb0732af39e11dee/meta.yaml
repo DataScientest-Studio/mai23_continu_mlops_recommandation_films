@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/af8239fe6e304b68bb0732af39e11dee/artifacts
+end_time: 1692950321420
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: af8239fe6e304b68bb0732af39e11dee
+run_name: vaunted-crow-131
+run_uuid: af8239fe6e304b68bb0732af39e11dee
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692950266141
+status: 3
+tags: []
+user_id: antho

@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/24cc2a39be9a4a3094e184c659ebbae5/artifacts
+end_time: 1692951021946
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: 24cc2a39be9a4a3094e184c659ebbae5
+run_name: victorious-stork-749
+run_uuid: 24cc2a39be9a4a3094e184c659ebbae5
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692950997525
+status: 4
+tags: []
+user_id: antho

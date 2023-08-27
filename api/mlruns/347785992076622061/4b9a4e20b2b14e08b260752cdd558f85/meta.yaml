@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/4b9a4e20b2b14e08b260752cdd558f85/artifacts
+end_time: 1692951091061
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: 4b9a4e20b2b14e08b260752cdd558f85
+run_name: dashing-stoat-147
+run_uuid: 4b9a4e20b2b14e08b260752cdd558f85
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692951064321
+status: 3
+tags: []
+user_id: antho

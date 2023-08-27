@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/14eb48037131463d95f025a4654e7cc3/artifacts
+end_time: 1693122427493
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: 14eb48037131463d95f025a4654e7cc3
+run_name: beautiful-gnu-763
+run_uuid: 14eb48037131463d95f025a4654e7cc3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1693122405302
+status: 3
+tags: []
+user_id: antho

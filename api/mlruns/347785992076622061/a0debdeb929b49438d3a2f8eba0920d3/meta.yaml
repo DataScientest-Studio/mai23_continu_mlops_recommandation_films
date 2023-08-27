@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/a0debdeb929b49438d3a2f8eba0920d3/artifacts
+end_time: 1693122384401
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: a0debdeb929b49438d3a2f8eba0920d3
+run_name: wistful-kit-613
+run_uuid: a0debdeb929b49438d3a2f8eba0920d3
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1693122357797
+status: 3
+tags: []
+user_id: antho

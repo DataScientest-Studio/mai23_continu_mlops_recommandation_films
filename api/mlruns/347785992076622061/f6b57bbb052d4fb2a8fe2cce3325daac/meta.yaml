@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/f6b57bbb052d4fb2a8fe2cce3325daac/artifacts
+end_time: 1692949670919
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: f6b57bbb052d4fb2a8fe2cce3325daac
+run_name: righteous-croc-671
+run_uuid: f6b57bbb052d4fb2a8fe2cce3325daac
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692949648188
+status: 3
+tags: []
+user_id: antho

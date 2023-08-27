@@ -1,8 +1,10 @@
 import pandas as pd
 import numpy as np  
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException
 from classes import User, Event, Rating
 from api_recommendation import hybrid_recommendation_movies
+from fastapi.security import HTTPBasic, HTTPBasicCredentials
+from passlib.context import CryptContext
 import sqlite3
 
 
@@ -36,6 +38,54 @@ api = FastAPI(
          "description": "This is the log_event route"},]
 )
 
+# Add a basic HTTP authentification
+security = HTTPBasic()
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+users = {
+    "anthony" : {
+        'username' : 'anthony',
+        'password' : pwd_context.hash('anthony'),
+    },
+
+    'fatoumata' : {
+         'username' : 'fatoumata',
+         'password' : pwd_context.hash('fatoumata'),
+    },
+
+    'thomas': {
+         'username' : 'thomas',
+         'password': pwd_context.hash('thomas'),
+    }
+}
+
+admin = {
+    'admin' : {
+        'username' : 'admin',
+        'password' : pwd_context.hash('admin')
+    }
+
+}
+
+def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
+    username = credentials.username
+    if not(users.get(username)) or not(pwd_context.verify(credentials.password, users[username]['password'])):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
+
+def get_current_admin(credentials: HTTPBasicCredentials = Depends(security)):
+    username = credentials.username
+    if not(admin.get(username)) or not(pwd_context.verify(credentials.password, admin[username]['password'])):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect username or password",
+            headers={"WWW-Authenticate": "Basic"},
+        )
+    return credentials.username
 
 def connect_to_db(db):
     connection = sqlite3.connect(db)
@@ -53,7 +103,7 @@ def get_home():
 
 
 
-@api.post("/new_user", tags = ["new_user"])
+@api.post("/new_user", tags = ["new_user"], dependencies=[Depends(get_current_admin)])
 def new_user(user: User):
     """
     This is the new_user route
@@ -80,7 +130,7 @@ def new_user(user: User):
 
     
     
-@api.delete("/delete_user", tags = ["delete_user"])
+@api.delete("/delete_user", tags = ["delete_user"], dependencies=[Depends(get_current_admin)])
 def delete_user(user: User):
     """
     This is the delete_user route
@@ -101,7 +151,7 @@ def delete_user(user: User):
     return {f"Success: {success}"}
 
 
-@api.patch("/update_user/", tags = ["update_user"])
+@api.patch("/update_user/", tags = ["update_user"], dependencies=[Depends(get_current_admin)])
 def update_user(update: User, field: str):
     """
     This is the update_user route
@@ -144,7 +194,7 @@ def update_user(update: User, field: str):
     return {f"Success: {success}"}
 
 
-@api.post("/new_rating", tags = ["new_rating"])
+@api.post("/new_rating", tags = ["new_rating"], dependencies=[Depends(get_current_admin)])
 def new_rating(rating: Rating):
     """
     This is the new_rating route
@@ -169,7 +219,7 @@ def new_rating(rating: Rating):
     return {None}
 
 
-@api.delete("/delete_ratings", tags = ["delete_ratings"])
+@api.delete("/delete_ratings", tags = ["delete_ratings"], dependencies=[Depends(get_current_admin)])
 def delete_ratings(user: User):
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
@@ -185,7 +235,7 @@ def delete_ratings(user: User):
     conn.close()
     return {f"Success: {success}"}
 
-@api.patch("/update_rating/", tags = ["update_rating"])
+@api.patch("/update_rating/", tags = ["update_rating"], dependencies=[Depends(get_current_admin)])
 def update_rating(new_rating: Rating):
     """
     This is the update_rating route
@@ -206,7 +256,7 @@ def update_rating(new_rating: Rating):
 
         
 
-@api.post("/recommendation_system", tags = ["recommendation_system"])
+@api.post("/recommendation_system", tags = ["recommendation_system"], dependencies=[Depends(get_current_user)])
 async def recommendation_system(userid : int, movie : str):
     """
     This is the recommendation_system route.
@@ -224,7 +274,7 @@ async def recommendation_system(userid : int, movie : str):
     return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
 
 
-@api.post("/log_event", tags = ["log_event"])
+@api.post("/log_event", tags = ["log_event"], dependencies=[Depends(get_current_admin)])
 def log_event(event: Event):
     return {"This is the log_event route"}
 
