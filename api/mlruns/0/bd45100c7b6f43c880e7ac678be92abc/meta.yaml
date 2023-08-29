@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/0/bd45100c7b6f43c880e7ac678be92abc/artifacts
+end_time: 1692950898260
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: bd45100c7b6f43c880e7ac678be92abc
+run_name: salty-cow-301
+run_uuid: bd45100c7b6f43c880e7ac678be92abc
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692950796920
+status: 3
+tags: []
+user_id: antho

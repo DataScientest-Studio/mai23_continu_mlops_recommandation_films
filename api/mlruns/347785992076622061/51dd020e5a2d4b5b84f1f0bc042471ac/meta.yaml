@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/51dd020e5a2d4b5b84f1f0bc042471ac/artifacts
+end_time: 1693123032694
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: 51dd020e5a2d4b5b84f1f0bc042471ac
+run_name: resilient-boar-813
+run_uuid: 51dd020e5a2d4b5b84f1f0bc042471ac
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1693123018371
+status: 3
+tags: []
+user_id: antho

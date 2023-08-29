@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/db8760a7c62e44f88f448a6d883dd058/artifacts
+end_time: 1693122960347
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: db8760a7c62e44f88f448a6d883dd058
+run_name: funny-conch-334
+run_uuid: db8760a7c62e44f88f448a6d883dd058
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1693122945917
+status: 3
+tags: []
+user_id: antho

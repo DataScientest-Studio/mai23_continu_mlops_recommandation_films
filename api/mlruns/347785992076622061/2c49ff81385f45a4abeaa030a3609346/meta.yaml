@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/347785992076622061/2c49ff81385f45a4abeaa030a3609346/artifacts
+end_time: 1692950955793
+entry_point_name: ''
+experiment_id: '347785992076622061'
+lifecycle_stage: active
+run_id: 2c49ff81385f45a4abeaa030a3609346
+run_name: bemused-crow-632
+run_uuid: 2c49ff81385f45a4abeaa030a3609346
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1692950903699
+status: 4
+tags: []
+user_id: antho
