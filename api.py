@@ -20,22 +20,26 @@ api = FastAPI(
         {"name": "home",
          "description": "This is the Home route"},
         {"name": "new_user",
-         "description": "This is the new_user route"},
+         "description": "This is the new_user route, for adding a new user to the database"},
+        {"name": "login",
+         "description": "This is the login route, for logging in a user"},
+        {"name": "get_user",
+         "description": "This is the get_user route, for getting user details from the database"},
         {"name": "delete_user",
-         "description": "This is the delete_user route"},
+         "description": "This is the delete_user route, for removing a user from the database"},
         {"name": "update_user",
-         "description": "This is the update_user route"},
+         "description": "This is the update_user route, for updating user details in the database"},
         {"name": "new_rating",
-         "description": "This is the new_rating route"},
+         "description": "This is the new_rating route, for adding a new rating to the database"},
+        {"name": "delete_rating",
+         "description": "This is the delete_rating route, for deleting a rating from the database"},
         {"name": "delete_ratings",
-         "description": "This is the delete_ratings route"},
+         "description": "This is the delete_ratings route, for deleting all ratings for a user"},
         {"name": "update_rating",
          "description": "This is the update_rating route"},
         {"name": "recommendation_system",
          "description": "This is the Recommendation System route"},
-        {"name": "log_event",
-         "description": "This is the log_event route"},]
-)
+    ])
 
 
 def connect_to_db(db):
@@ -65,8 +69,13 @@ def check_password(user:User):
 def get_home():
     """
     This is the home route
+    Accepts : None
+    Returns :
+        success : bool
+        message : str
     """
-    return {"Welcome to our API. This is a work in progress."}
+    success = True
+    return {"Success": success, "Message": "Welcome to our API. This is a work in progress."}
 
 
 @api.post("/new_user", tags = ["new_user"])
