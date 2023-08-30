@@ -39,7 +39,7 @@ with mlflow.start_run(experiment_id = experiment_id):
 
 
             # supprimer les doublons, nous n'avons besoin que d'une donnée par film, l'entraînement a déjà été fait et gain de temps en calcul
-            collab_filtering_df = collab_filtering_df.drop_duplicates(subset=['imdbId'], keep='first')
+            collab_filtering_df = collab_filtering.drop_duplicates(subset=['imdbId'], keep='first')
 
             # appliquer le modèle svd sur chaque ligne
             collab_filtering_df['est'] = collab_filtering_df.apply(
