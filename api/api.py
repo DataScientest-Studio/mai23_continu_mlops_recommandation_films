@@ -1,6 +1,6 @@
 import pandas as pd
 import numpy as np  
-from fastapi import FastAPI, Depends, HTTPException
+from fastapi import FastAPI, Depends, HTTPException, status
 from classes import User, Event, Rating
 from api_recommendation import hybrid_recommendation_movies
 from fastapi.security import HTTPBasic, HTTPBasicCredentials
