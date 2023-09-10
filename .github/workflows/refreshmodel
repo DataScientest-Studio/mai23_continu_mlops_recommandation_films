@@ -1,0 +1,16 @@
+name: Refreshing the Model with New Data each sunday at 1 am
+
+on:
+  schedule:
+    - cron: "0 1 * * 0"
+
+jobs:
+  run_recommendation_system:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Re Run Recommendation System Script
+        run: python model/recommendation-system.py
