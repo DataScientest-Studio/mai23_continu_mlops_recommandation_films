@@ -17,7 +17,7 @@ pip install -r requirements.txt
 ```
 
 ## Base de données
-Les données qui ont été utilisées sont issues de deux sources web différentes :
+Les données qui ont été utilisées sont issues de deux sources web différentes où elles peuvent être téléchargées et placées dans un dossier /data/Movie_Lens/ml-20m/ et /data/IMDB/ respectivement :
 - [MovieLens](https://grouplens.org/datasets/movielens/20m/) contient 20 millions de notes sur 27000 films différents. Plus de 138 000 personnes choisies aléatoirement ont alimentées cette base de données et ayant notées au moins 20 films chacun. Les données ont été récoltées entre 1995 et 2015. Cette base de données contient 6 fichiers différents : genome-score.csv / genome_tags.csv / links.csv / movies.csv / ratings.csv / tags.csv
 - [IMDB](https://developer.imdb.com/non-commercial-datasets/) contient des caractéristiques de films(année de sortie, genre, réalisateur(s), écrivain(s),durée, note moyenne, etc). Cette base de données contient 7 fichiers différents : title.ratings / title.episode / title.crew / name.basics / title.akas / title.basics / title.principals qui sont mis à jour quotidiennement. Afin de mettre à jour cette base de données IMDB chaque semaine, il faut se placer dans le répertoire /airflow et lancer la commande suivante :
 ```
