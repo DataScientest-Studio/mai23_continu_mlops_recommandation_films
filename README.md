@@ -28,6 +28,9 @@ Une fois rendu sur l'url **localhost:8080**, il faut se rendre sur le DAG *my_da
 
 Une fois ces deux bases de données nettoyées et liées, nous avons un dataframe de plus de 5 millions de données donc assez conséquents nous permettant de passer aux parties suivantes.
 
+## Modèle
+
+
 ## API
 Afin de faire fonctionner l'API, il faudra se placer dans le répertoire /api contenant un fichier docker-compose.yml et lancer la commande depuis son terminal : 
 
