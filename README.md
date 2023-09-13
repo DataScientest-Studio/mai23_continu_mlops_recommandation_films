@@ -17,22 +17,29 @@ pip install -r requirements.txt
 ```
 
 ## Base de données
-Les données qui ont été utilisées sont issues de deux sources web différentes où elles peuvent être téléchargées et placées dans un dossier /data/Movie_Lens/ml-20m/ et /data/IMDB/ respectivement :
+Les données qui ont été utilisées sont issues de deux sources web différentes où elles peuvent être téléchargées et placées dans un dossier \data\Movie_Lens\ml-20m et \data\IMDB respectivement :
 - [MovieLens](https://grouplens.org/datasets/movielens/20m/) contient 20 millions de notes sur 27000 films différents. Plus de 138 000 personnes choisies aléatoirement ont alimentées cette base de données et ayant notées au moins 20 films chacun. Les données ont été récoltées entre 1995 et 2015. Cette base de données contient 6 fichiers différents : genome-score.csv / genome_tags.csv / links.csv / movies.csv / ratings.csv / tags.csv
-- [IMDB](https://developer.imdb.com/non-commercial-datasets/) contient des caractéristiques de films(année de sortie, genre, réalisateur(s), écrivain(s),durée, note moyenne, etc). Cette base de données contient 7 fichiers différents : title.ratings / title.episode / title.crew / name.basics / title.akas / title.basics / title.principals qui sont mis à jour quotidiennement. Afin de mettre à jour cette base de données IMDB chaque semaine, il faut se placer dans le répertoire /airflow et lancer la commande suivante :
+- [IMDB](https://developer.imdb.com/non-commercial-datasets/) contient des caractéristiques de films(année de sortie, genre, réalisateur(s), écrivain(s),durée, note moyenne, etc). Cette base de données contient 7 fichiers différents : title.ratings , title.episode , title.crew , name.basics , title.akas , title.basics et title.principals qui sont mis à jour quotidiennement. Afin de mettre à jour cette base de données IMDB chaque semaine, il faut se placer dans le répertoire \airflow et lancer la commande suivante :
 ```
 docker-compose up
 ```
 
-Une fois rendu sur l'url **localhost:8080**, il faut se rendre sur le DAG *my_dag_recommendation* et cliquer sur le bouton **PLAY** et les données sont mises à jour au bout de quelques minutes dans le dossier /data/loaded_api_datasets/ .
+Une fois rendu sur l'url **localhost:8080**, il faut se rendre sur le DAG *my_dag_recommendation* et cliquer sur le bouton **PLAY** et les données sont mises à jour au bout de quelques minutes dans le dossier \data\IMDB .
 
 Une fois ces deux bases de données nettoyées et liées, nous avons un dataframe de plus de 5 millions de données donc assez conséquents nous permettant de passer aux parties suivantes.
 
 ## Modèle
 
+Afin de garantir une réponse rapide de l'API suite à une demande d'un utilisateur, il est nécessaire de sauvegarder nos différents modèles ainsi que certaines bases de données. Pour cela, il est nécessaire de lancer la commande suivante depuis son terminal en se placant dans le dossier \model :
+
+```
+python .\recommendation_system.py
+```
+
+Les différents fichiers sauvegardés au bout de plusieurs minutes vont se placer dans le dossier \data\loaded_api_datasets et serviront lors de la demande d'une requête via l'API.
 
 ## API
-Afin de faire fonctionner l'API, il faudra se placer dans le répertoire /api contenant un fichier docker-compose.yml et lancer la commande depuis son terminal : 
+Afin de faire fonctionner l'API, il faudra se placer dans le répertoire \api contenant un fichier docker-compose.yml et lancer la commande depuis son terminal : 
 
 ```
 docker-compose up
