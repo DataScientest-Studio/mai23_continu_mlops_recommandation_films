@@ -24,7 +24,7 @@ Les données qui ont été utilisées sont issues de deux sources web différent
 docker-compose up
 ```
 
-Une fois rendu sur l'url **localhost:8080**, il faut se rendre sur le DAG *my_dag_recommendation* et cliquer sur le bouton **PLAY** et les données sont mises à jour au bout de quelques minutes dans le dossier \data\IMDB .
+Une fois rendu sur l'url [**localhost:8080**](http://localhost:8080/home), il faut se rendre sur le DAG *my_dag_recommendation* et cliquer sur le bouton **PLAY** et les données sont mises à jour au bout de quelques minutes dans le dossier \data\IMDB .
 
 Une fois ces deux bases de données nettoyées et liées, nous avons un dataframe de plus de 5 millions de données donc assez conséquents nous permettant de passer aux parties suivantes.
 
@@ -45,7 +45,7 @@ Afin de faire fonctionner l'API, il faudra lancer le docker daemon et ensuite se
 docker-compose up
 ```
 
-Une fois rendu sur l'url **localhost:8000**, plusieurs routes existent afin de répondre aux besoins des clients: un besoin lié aux informations des utilisateurs, un besoin lié aux notes mises sur les films et le système de recommendation en lui même.
+Une fois rendu sur l'url [**localhost:8000**][http://localhost:8000), plusieurs routes existent afin de répondre aux besoins des clients: un besoin lié aux informations des utilisateurs, un besoin lié aux notes mises sur les films et le système de recommendation en lui même.
 
 Les routes *new_user* et *new_rating* permettent d'ajouter de nouvelles données à notre database en y insérant de nouveaux utilisateurs et de nouvelles notes permettant à notre système de recommandation de pouvoir évoluer dans le temps avec la sortie de nouveaux films et l'arrivée de nouveaux cinéphiles.
 
