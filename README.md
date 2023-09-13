@@ -45,7 +45,7 @@ Afin de faire fonctionner l'API, il faudra lancer le docker daemon et ensuite se
 docker-compose up
 ```
 
-Une fois rendu sur l'url [**localhost:8000**][http://localhost:8000), plusieurs routes existent afin de répondre aux besoins des clients: un besoin lié aux informations des utilisateurs, un besoin lié aux notes mises sur les films et le système de recommendation en lui même.
+Une fois rendu sur l'url [**localhost:8000**](http://localhost:8000), plusieurs routes existent afin de répondre aux besoins des clients: un besoin lié aux informations des utilisateurs, un besoin lié aux notes mises sur les films et le système de recommendation en lui même.
 
 Les routes *new_user* et *new_rating* permettent d'ajouter de nouvelles données à notre database en y insérant de nouveaux utilisateurs et de nouvelles notes permettant à notre système de recommandation de pouvoir évoluer dans le temps avec la sortie de nouveaux films et l'arrivée de nouveaux cinéphiles.
 
