@@ -1,5 +1,5 @@
 artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/0/bb178782f27943d59e635de030442c50/artifacts
-end_time: null
+end_time: 1694698220354
 entry_point_name: ''
 experiment_id: '0'
 lifecycle_stage: active
@@ -10,6 +10,6 @@ source_name: ''
 source_type: 4
 source_version: ''
 start_time: 1694687196857
-status: 1
+status: 3
 tags: []
 user_id: antho
