@@ -1,0 +1,15 @@
+artifact_uri: file:///C:/Users/antho/Projet_recommandation_system/mai23_continu_mlops_recommandation_films/api/mlruns/0/bb178782f27943d59e635de030442c50/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '0'
+lifecycle_stage: active
+run_id: bb178782f27943d59e635de030442c50
+run_name: rebellious-bat-147
+run_uuid: bb178782f27943d59e635de030442c50
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1694687196857
+status: 1
+tags: []
+user_id: antho

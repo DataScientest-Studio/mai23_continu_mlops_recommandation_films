@@ -196,9 +196,12 @@ df_merged.to_pickle('../data/loaded_api_datasets/df_merged.pkl')
 
 # entraînement des modèles
 
-experiment_name = 'recommendation_system'
-current_experiment = dict(mlflow.get_experiment_by_name(experiment_name))
-experiment_id = current_experiment['experiment_id']
+#à commenter ou décommenter selon le cas
+
+experiment_id = mlflow.create_experiment('recommendation_system')
+#experiment_name = 'recommendation_system'
+#current_experiment = dict(mlflow.get_experiment_by_name(experiment_name))
+#experiment_id = current_experiment['experiment_id']
 with mlflow.start_run(experiment_id =experiment_id):
 
 
