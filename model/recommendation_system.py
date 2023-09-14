@@ -6,7 +6,10 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.neighbors import NearestNeighbors
 from surprise import SVD, Reader, Dataset, accuracy
 from surprise.model_selection import train_test_split
-#import mlflow
+import mlflow
+import mlflow.sklearn
+
+
 
 # define paths to data
 data_path = "../data/"
@@ -118,7 +121,7 @@ df_merged = preprocessing_data()
 
 
 def separate_df():
-    collab_filtering = df_merged.iloc[:,[0,1,2]].dropna() #userId,movieId,ratings
+    collab_filtering = df_merged.iloc[:,[0,3,2]].dropna() #userId,movieId,ratings
     content_based_filtering = df_merged.iloc[:,[3,4,6,8,9,10,11,13]].dropna() #userId,movieId, averageRating, titleType, startYear,runtimeMinutes,genres, director, writer, actors
     # changement de type de la variable runtimeMinutes
     content_based_filtering['runtimeMinutes'] = content_based_filtering['runtimeMinutes'].astype('int')
@@ -135,6 +138,10 @@ def preprocessing_content_based_filtering():
     
     # supprimer les doublons
     content_based_filtering_duplicated = content_based_filtering.drop_duplicates(keep = 'last')
+
+    # garder uniquement le premier réalisateur
+    content_based_filtering_duplicated['director'] = content_based_filtering_duplicated['director'].str.split(expand = True).iloc[:,0].replace({"nm":''}, regex = True)
+    #content_based_filtering_duplicated['actors'].str.split(expand = True).iloc[:,0].replace({"nm":''}, regex = True, inplace = True)
     
     #standardiser les colonnes averageRating, startYear, runtimeMinutes (= integer)
     scaler = MinMaxScaler()
@@ -152,29 +159,28 @@ def preprocessing_content_based_filtering():
 # d'apparition
     tfid = TfidfVectorizer(stop_words='english')
     tfid_genres = tfid.fit_transform(content_based_filtering_duplicated['genres_y'])
-    tfid_directors = tfid.fit_transform(content_based_filtering_duplicated['director'])
+    #tfid_directors = tfid.fit_transform(content_based_filtering_duplicated['director'])
     #tfid_writers = tfid.fit_transform(content_based_filtering_duplicated['writer'])
     #tfid_actors = tfid.fit_transform(content_based_filtering_duplicated['actors'])
 
     # créer une liste des noms des colonnes pour avoir que des strings et non des entiers et des strings
     liste_genres = []
     #liste_actors = []
-    liste_directors = []
+    #liste_directors = []
     #liste_writers = []
     for i in range(tfid_genres.shape[1]):
         liste_genres.append('genres_{}'.format(i+1))
     #for i in range(tfid_actors.shape[1]):
         #liste_actors.append('actor_{}'.format(i+1))
-    for i in range(tfid_directors.shape[1]):
-        liste_directors.append('director_{}'.format(i+1))
+    #for i in range(tfid_directors.shape[1]):
+        #liste_directors.append('director_{}'.format(i+1))
     #for i in range(tfid_writers.shape[1]):
         #liste_writers.append('genres_{}'.format(i+1))
 
     
     # concaténer le df
     df_concat = pd.concat([df_scaler,
-                       pd.DataFrame.sparse.from_spmatrix(tfid_genres, columns= liste_genres),
-                       pd.DataFrame.sparse.from_spmatrix(tfid_directors, columns= liste_directors)], axis = 1)
+                       pd.DataFrame.sparse.from_spmatrix(tfid_genres, columns= liste_genres)], axis = 1)
     
     # réduire la taille du df float64 --> float16
     df_concat = df_concat.astype('float16')
@@ -190,45 +196,69 @@ df_merged.to_pickle('../data/loaded_api_datasets/df_merged.pkl')
 
 # entraînement des modèles
 
-# nearestNeighbor - content based filtering
-def train_nearest_neighbors_model(n_neighbors : int):
-    # instancier le modèle
-    model_knn = NearestNeighbors()
-
-    #entraînement sur nos données
-    model_knn.fit(content_based_filtering)
-
-    # retourne une liste des indices des n plus proches voisins, le premier argument doit être au format array d'où le np.array, n_neighbors+1 car le premier film plus proche voisn est le film lui même
-    return model_knn.kneighbors(np.array(content_based_filtering),n_neighbors+1,return_distance=True) 
+experiment_name = 'recommendation_system'
+current_experiment = dict(mlflow.get_experiment_by_name(experiment_name))
+experiment_id = current_experiment['experiment_id']
+with mlflow.start_run(experiment_id =experiment_id):
 
 
+    # nearestNeighbor - content based filtering
+    def train_nearest_neighbors_model(n_neighbors : int):
+        # instancier le modèle
+        model_knn = NearestNeighbors( p = p ) #ou p = 1
 
-kneighbors_50 = train_nearest_neighbors_model(50)
+        #entraînement sur nos données
+        model_knn.fit(content_based_filtering)
 
-# svd model - collaborative filtering
+        # retourne une liste des indices des n plus proches voisins, le premier argument doit être au format array d'où le np.array, n_neighbors+1 car le premier film plus proche voisn est le film lui même
+        return model_knn.kneighbors(np.array(content_based_filtering),n_neighbors+1,return_distance=True) 
 
-def train_svd():
-    #définir l'échelle des valeurs de notes
-    reader = Reader(rating_scale=(0.5,5))
-    #importer les données
-    data = Dataset.load_from_df(collab_filtering,reader = reader)
+
+
     
-    #séparer les données en un jeu de test et d'entraînement
-    trainset, testset = train_test_split(data, test_size=0.25,random_state=10)
-    
-    # instancier le modèle SVD et l'appliquer sur les données d'entraînement
-    svd = SVD()
-    svd.fit(trainset)
-    
-    # tester sur nos données de test
-    test_pred = svd.test(testset)
-    
-    #retourner le modèle et la rmse comme métrique
-    return svd,accuracy.rmse(test_pred, verbose=True) 
 
-svd,rmse_svd = train_svd()
+    # svd model - collaborative filtering
 
-mlflow.log_metric('rmse_svd',rmse_svd)
+
+    def train_svd():
+        #définir l'échelle des valeurs de notes
+        reader = Reader(rating_scale=(0.5,5))
+        #importer les données
+        data = Dataset.load_from_df(collab_filtering,reader = reader)
+        
+        #séparer les données en un jeu de test et d'entraînement
+        trainset, testset = train_test_split(data, test_size=0.25,random_state=10)
+        
+        # instancier le modèle SVD et l'appliquer sur les données d'entraînement
+        # SVD(n_factors = 100, n_epochs = 20, lr_all = 0.005, reg_all = 0.02)
+        
+        svd = SVD(n_factors = n_factors, n_epochs = n_epochs, lr_all = lr_all, reg_all = reg_all)
+        svd.fit(trainset)
+        
+        # tester sur nos données de test
+        test_pred = svd.test(testset)
+        
+        #retourner le modèle et la rmse comme métrique
+        return svd,accuracy.rmse(test_pred, verbose=True) 
+    
+    
+    p = 2
+    kneighbors_50 = train_nearest_neighbors_model(50)
+
+    n_factors = 200
+    n_epochs = 30
+    lr_all = 0.002
+    reg_all = 0.02
+    svd,rmse_svd = train_svd()
+
+    mlflow.log_param("p",p)
+    mlflow.log_param("n_factors",n_factors)
+    mlflow.log_param("n_epochs",n_epochs)
+    mlflow.log_param("lr_all",lr_all)
+    mlflow.log_param("reg_all",reg_all)
+    mlflow.log_metric('rmse_svd',rmse_svd)
+    mlflow.sklearn.log_model(svd,"collaborative_filtering")
+    mlflow.sklearn.log_model(kneighbors_50, "content_based_filtering")
 
 np.save('../data/loaded_api_datasets/kneighbors_results',kneighbors_50)
 joblib.dump(svd,'../data/loaded_api_datasets/svd_model.pkl')
