@@ -2,7 +2,7 @@ import joblib
 import pandas as pd
 import numpy as  np
 
-kneighbors_results = np.load('../data/loaded_api_datasets/kneighbors_results.npy')
+kneighbors_results = np.load('data/loaded_api_datasets/kneighbors_results.npy')
 svd_model = joblib.load('../data/loaded_api_datasets/svd_model.pkl')
 collab_filtering = pd.read_pickle('../data/loaded_api_datasets/collab_filtering_df.pkl')
 content_based_filtering_duplicated = pd.read_pickle('../data/loaded_api_datasets/content_based_filtering_df.pkl')
