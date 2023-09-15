@@ -114,7 +114,7 @@ def preprocessing_data():
     #remplacement des ',' par des espaces afin d'utiliser ci-après la fonction tfid vectorizer
     df_merged['genres_y'].replace({',':' '}, regex = True, inplace = True)
     #retourner les films uniquement à partir des années 2000 (réduire la base de données)
-    return df_merged[(df_merged['titleType']=='movie') & (df_merged['startYear']>=2000)]
+    return df_merged[(df_merged['titleType']=='movie') & (df_merged['startYear']>=2015)]
 
 df_merged = preprocessing_data()
 
@@ -198,10 +198,10 @@ df_merged.to_pickle('../data/loaded_api_datasets/df_merged.pkl')
 
 #à commenter ou décommenter selon le cas
 
-experiment_id = mlflow.create_experiment('recommendation_system')
-#experiment_name = 'recommendation_system'
-#current_experiment = dict(mlflow.get_experiment_by_name(experiment_name))
-#experiment_id = current_experiment['experiment_id']
+#experiment_id = mlflow.create_experiment('recommendation_system')
+experiment_name = 'recommendation_system'
+current_experiment = dict(mlflow.get_experiment_by_name(experiment_name))
+experiment_id = current_experiment['experiment_id']
 with mlflow.start_run(experiment_id =experiment_id):
 
 
@@ -246,7 +246,7 @@ with mlflow.start_run(experiment_id =experiment_id):
     
     
     p = 2
-    kneighbors_50 = train_nearest_neighbors_model(50)
+    kneighbors_50 = train_nearest_neighbors_model(20)
 
     n_factors = 200
     n_epochs = 30

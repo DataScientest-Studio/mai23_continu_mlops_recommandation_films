@@ -1,5 +1,6 @@
 # data to be downloaded locally
-data/
+data/IMDB/
+data/Movie_Lens/
 old/
 
 airflow/logs/
