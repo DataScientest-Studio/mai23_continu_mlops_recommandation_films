@@ -71,7 +71,7 @@ def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, s
         mean_score = df_merged[(df_merged['primaryTitle'].isin(liste)) & df_merged['userId'].isin(df_merged[df_merged['primaryTitle'] == movie]['userId'].unique())]['rating'].mean()
     
 
-        return liste, mlflow.log_metric('mean_score',mean_score)
+        return liste, mean_score
 
             
 
