@@ -139,4 +139,4 @@ dmypy.json
 
 model/mlruns/
 
-test.ipynb
+.test.ipynb
