@@ -1,23 +1,21 @@
+import email_validator
 import pandas as pd
-import numpy as np  
-from fastapi import FastAPI, Depends, HTTPException, status
+import numpy as np
+from fastapi import FastAPI
 from classes import User, Event, Rating
 from api_recommendation import hybrid_recommendation_movies
-from fastapi.security import HTTPBasic, HTTPBasicCredentials
-from passlib.context import CryptContext
 import sqlite3
 
-
-#with open("model.pkl", "rb") as pickled:
+# with open("model.pkl", "rb") as pickled:
 #   model = pickle.load(pickled)
 
 
 api = FastAPI(
-    title = "API project Recommnendation System, MLOps May 2023",
-    description = "This is a Recommendation System API",
-    version = "0.2.1",
-    version_detail  = "addition of delete_user route",
-    openapi_tags = [
+    title="API project Recommnendation System, MLOps May 2023",
+    description="This is a Recommendation System API",
+    version="0.2.1",
+    version_detail="addition of delete_user route",
+    openapi_tags=[
         {"name": "home",
          "description": "This is the Home route"},
         {"name": "new_user",
@@ -35,65 +33,17 @@ api = FastAPI(
         {"name": "recommendation_system",
          "description": "This is the Recommendation System route"},
         {"name": "log_event",
-         "description": "This is the log_event route"},]
+         "description": "This is the log_event route"}, ]
 )
 
-# Add a basic HTTP authentification
-security = HTTPBasic()
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-users = {
-    "anthony" : {
-        'username' : 'anthony',
-        'password' : pwd_context.hash('anthony'),
-    },
-
-    'fatoumata' : {
-         'username' : 'fatoumata',
-         'password' : pwd_context.hash('fatoumata'),
-    },
-
-    'thomas': {
-         'username' : 'thomas',
-         'password': pwd_context.hash('thomas'),
-    }
-}
-
-admin = {
-    'admin' : {
-        'username' : 'admin',
-        'password' : pwd_context.hash('admin')
-    }
-
-}
-
-def get_current_user(credentials: HTTPBasicCredentials = Depends(security)):
-    username = credentials.username
-    if not(users.get(username)) or not(pwd_context.verify(credentials.password, users[username]['password'])):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
-
-def get_current_admin(credentials: HTTPBasicCredentials = Depends(security)):
-    username = credentials.username
-    if not(admin.get(username)) or not(pwd_context.verify(credentials.password, admin[username]['password'])):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect username or password",
-            headers={"WWW-Authenticate": "Basic"},
-        )
-    return credentials.username
 
 def connect_to_db(db):
     connection = sqlite3.connect(db)
     connection.row_factory = sqlite3.Row
     return connection
 
-    
-@api.get('/', tags = ["home"]) # default route
+
+@api.get('/', tags=["home"])  # default route
 def get_home():
     """
     This is the home route
@@ -101,23 +51,30 @@ def get_home():
     return {"Welcome to our API. This is a work in progress."}
 
 
-
-
-@api.post("/new_user", tags = ["new_user"], dependencies=[Depends(get_current_admin)])
+@api.post("/new_user", tags=["new_user"])
 def new_user(user: User):
     """
     This is the new_user route
     """
+
+    try:
+        email_validator.validate_email(user.email, check_deliverability=False)
+    except email_validator.EmailNotValidError as e:
+        raise HTTPException(status_code=400, detail="Invalid email format")
+
+
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
     success = False
     try:
-        cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)", (user.name, user.email, user.password.get_secret_value()))
+        cursor.execute(f"INSERT INTO users (name, email, password) VALUES (?,?,?)",
+                       (user.name, user.email, user.password.get_secret_value()))
         new_user_id = cursor.lastrowid
         conn.commit()
         return {"userid": new_user_id}
     except sqlite3.IntegrityError:
         print("User already exists")
+        return {"User already exists"}
     except sqlite3.ProgrammingError:
         print("SQL syntax error")
     except sqlite3.OperationalError:
@@ -126,11 +83,9 @@ def new_user(user: User):
         print("Database error")
     conn.close()
     return {None}
-    
 
-    
-    
-@api.delete("/delete_user", tags = ["delete_user"], dependencies=[Depends(get_current_admin)])
+
+@api.delete("/delete_user", tags=["delete_user"])
 def delete_user(user: User):
     """
     This is the delete_user route
@@ -151,7 +106,10 @@ def delete_user(user: User):
     return {f"Success: {success}"}
 
 
-@api.patch("/update_user/", tags = ["update_user"], dependencies=[Depends(get_current_admin)])
+from fastapi import HTTPException
+
+
+@api.patch("/update_user/", tags=["update_user"])
 def update_user(update: User, field: str):
     """
     This is the update_user route
@@ -170,7 +128,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    if field == "email":
+        conn.close()
+        return {f"Success: {success}"}
+    elif field == "email":
         value = update.email
         try:
             cursor.execute(f"UPDATE users SET email = ? WHERE userid = ?", (value, update.userid))
@@ -180,7 +140,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    if field == "password":
+        conn.close()
+        return {f"Success: {success}"}
+    elif field == "password":
         value = update.password.get_secret_value()
         try:
             cursor.execute(f"UPDATE users SET password = ? WHERE userid = ?", (value, update.userid))
@@ -190,20 +152,24 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    conn.close()
-    return {f"Success: {success}"}
+        conn.close()
+        return {f"Success: {success}"}
+    else:
+        conn.close()
+        raise HTTPException(status_code=400, detail=f"Invalid field: {field}")
 
 
-@api.post("/new_rating", tags = ["new_rating"], dependencies=[Depends(get_current_admin)])
+@api.post("/new_rating", tags=["new_rating"])
 def new_rating(rating: Rating):
     """
     This is the new_rating route
-    
+
     """
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
     try:
-        cursor.execute(f"INSERT INTO ratings (userid, movieid, rating) VALUES (?,?,?)", (rating.userid, rating.movieid, rating.rating))
+        cursor.execute(f"INSERT INTO ratings (userid, movieid, rating) VALUES (?,?,?)",
+                       (rating.userid, rating.movieid, rating.rating))
         new_rating_id = cursor.lastrowid
         conn.commit()
         return {"ratingid": new_rating_id}
@@ -219,7 +185,7 @@ def new_rating(rating: Rating):
     return {None}
 
 
-@api.delete("/delete_ratings", tags = ["delete_ratings"], dependencies=[Depends(get_current_admin)])
+@api.delete("/delete_ratings", tags=["delete_ratings"])
 def delete_ratings(user: User):
     conn = connect_to_db("database.db")
     cursor = conn.cursor()
@@ -235,7 +201,8 @@ def delete_ratings(user: User):
     conn.close()
     return {f"Success: {success}"}
 
-@api.patch("/update_rating/", tags = ["update_rating"], dependencies=[Depends(get_current_admin)])
+
+@api.patch("/update_rating/", tags=["update_rating"])
 def update_rating(new_rating: Rating):
     """
     This is the update_rating route
@@ -244,37 +211,36 @@ def update_rating(new_rating: Rating):
     cursor = conn.cursor()
     success = False
     try:
-        cursor.execute(f"UPDATE users SET rating = ? WHERE userid = ? AND movieid = ?", (new_rating.rating, new_rating.userid, new_rating.movieid))
+        cursor.execute(f"UPDATE users SET rating = ? WHERE userid = ? AND movieid = ?",
+                       (new_rating.rating, new_rating.userid, new_rating.movieid))
         conn.commit()
         success = True
     except sqlite3.OperationalError:
         print("Operational issue")
     except sqlite3.DatabaseError:
-        print("Database error")    
+        print("Database error")
     return {f"Success: {success}"}
 
 
-        
-
-@api.post("/recommendation_system", tags = ["recommendation_system"], dependencies=[Depends(get_current_user)])
-async def recommendation_system(userid : int, movie : str):
+@api.post("/recommendation_system", tags=["recommendation_system"])
+async def recommendation_system(userId: int, movie: str):
     """
     This is the recommendation_system route.
 
-    input : 
-    
+    input :
+
         userid : integer
         movie_title : string
 
     Return movies from a recommendation system
     """
 
-    recommendation_movies = hybrid_recommendation_movies(userid,movie)
-    
-    return {f"When this route grows up it will provide recommendations for this movie: {movie}" : recommendation_movies}
+    recommendation_movies = hybrid_recommendation_movies(userId, movie)
+
+    return {f"When this route grows up it will provide recommendations for this movie: {movie}": recommendation_movies}
 
 
-@api.post("/log_event", tags = ["log_event"], dependencies=[Depends(get_current_admin)])
+@api.post("/log_event", tags=["log_event"])
 def log_event(event: Event):
     return {"This is the log_event route"}
 

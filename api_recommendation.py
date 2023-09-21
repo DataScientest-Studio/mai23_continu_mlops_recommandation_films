@@ -68,7 +68,7 @@ def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, s
         au final, cela retourne les 20 films les plus proches voisins
         '''
         liste = movies.iloc[kneighbors_50[1][movies_index[movie]][1:n_recommendation + 1]]
-        mean_score = df_merged[(df_merged['primaryTitle'].isin(liste)) & df_merged['userId'].isin(df_merged[df_merged['primaryTitle'] == movie]['userId'].unique())]['rating'].mean()
+        mean_score = df_merged[(df_merged['primaryTitle'].isin(liste)) & df_merged['userId'].isin(df_merged[df_merged['primaryTitle'] == movie]['userId'].unique())]['averageRating'].mean()
     
 
         return liste, mean_score

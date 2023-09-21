@@ -8,7 +8,7 @@ connection = sqlite3.connect('database.db')
 
 cursor = connection.cursor()
 
-cursor.execute("SELECT * FROM users")
+cursor.execute("SELECT * FROM ratings")
 print(cursor.fetchall())
 
 connection.commit()
