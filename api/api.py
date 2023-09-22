@@ -108,7 +108,7 @@ def new_user(user: User):
     """
     This is the new_user route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
@@ -135,7 +135,7 @@ def delete_user(user: User):
     """
     This is the delete_user route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
@@ -156,7 +156,7 @@ def update_user(update: User, field: str):
     """
     This is the update_user route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     value = ""
@@ -200,7 +200,7 @@ def new_rating(rating: Rating):
     This is the new_rating route
     
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     try:
         cursor.execute(f"INSERT INTO ratings (userid, movieid, rating) VALUES (?,?,?)", (rating.userid, rating.movieid, rating.rating))
@@ -221,7 +221,7 @@ def new_rating(rating: Rating):
 
 @api.delete("/delete_ratings", tags = ["delete_ratings"], dependencies=[Depends(get_current_admin)])
 def delete_ratings(user: User):
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
@@ -240,7 +240,7 @@ def update_rating(new_rating: Rating):
     """
     This is the update_rating route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:

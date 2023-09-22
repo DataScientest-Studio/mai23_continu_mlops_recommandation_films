@@ -121,7 +121,7 @@ df_merged = preprocessing_data()
 
 
 def separate_df():
-    collab_filtering = df_merged.iloc[:,[0,3,2]].dropna() #userId,movieId,ratings
+    collab_filtering = df_merged.iloc[:,[0,3,2]].dropna() #userId,imdbId,ratings
     content_based_filtering = df_merged.iloc[:,[3,4,6,8,9,10,11,13]].dropna() #userId,movieId, averageRating, titleType, startYear,runtimeMinutes,genres, director, writer, actors
     # changement de type de la variable runtimeMinutes
     content_based_filtering['runtimeMinutes'] = content_based_filtering['runtimeMinutes'].astype('int')
@@ -129,7 +129,19 @@ def separate_df():
 
 collab_filtering,content_based_filtering = separate_df()
 
+import sqlite3
 
+with open("schema.sql", "r") as file:
+    schema = file.read()
+# print(schema)    
+connection = sqlite3.connect('database.db')
+new_data = pd.read_sql_query("SELECT userid,movieid,rating FROM ratings", connection)
+connection.commit()
+connection.close()
+
+new_data.rename(columns = {'userid' : 'userId','movieid' : 'imdbId'}, inplace = True)
+collab_filtering = pd.concat([collab_filtering,new_data])
+collab_filtering.drop_duplicates(keep = 'last', inplace = True)
 
 
 #############################################################################models preprocessing and training#################################################################################
@@ -141,12 +153,12 @@ def preprocessing_content_based_filtering():
 
     # garder uniquement le premier réalisateur
     content_based_filtering_duplicated['director'] = content_based_filtering_duplicated['director'].str.split(expand = True).iloc[:,0].replace({"nm":''}, regex = True)
-    #content_based_filtering_duplicated['actors'].str.split(expand = True).iloc[:,0].replace({"nm":''}, regex = True, inplace = True)
+    content_based_filtering_duplicated['actors'] = content_based_filtering_duplicated['actors'].str.split(expand = True).iloc[:,0].replace({"nm":''}, regex = True)
     
     #standardiser les colonnes averageRating, startYear, runtimeMinutes (= integer)
     scaler = MinMaxScaler()
-    df_scaler = pd.DataFrame(scaler.fit_transform(content_based_filtering_duplicated.iloc[:,[1,3,4]]), 
-                             columns= content_based_filtering_duplicated.iloc[:,[1,3,4]].columns)
+    df_scaler = pd.DataFrame(scaler.fit_transform(content_based_filtering_duplicated.iloc[:,[1,3,4,6,7]]), 
+                             columns= content_based_filtering_duplicated.iloc[:,[1,3,4,6,7]].columns)
     
     
     #create dictionary pour les modèles et déterminer la liste des films

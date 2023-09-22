@@ -1,10 +1,10 @@
 import sqlite3
 import datetime
 
-with open("schema.sql", "r") as file:
+with open("../schema.sql", "r") as file:
     schema = file.read()
 # print(schema)    
-connection = sqlite3.connect('database.db')
+connection = sqlite3.connect('../database.db')
 
 
 cursor = connection.cursor()
@@ -42,15 +42,15 @@ print(cursor.fetchall())
 cursor.executescript("""
     DROP TABLE IF EXISTS ratings;
     CREATE TABLE ratings (
-        ratingid INTEGER PRIMARY KEY NOT NULL,
+        ratingid INTEGER PRIMARY KEY,
         userid INTEGER NOT NULL,
-        date DATE NOT NULL,
+        movieid INTEGER NOT NULL,
         rating INTEGER NOT NULL)
     """)
 
 rating0 = (0,
         0,
-        datetime.datetime.now(),
+        420293,
         4
         )
 
@@ -58,7 +58,7 @@ cursor.execute(f"INSERT INTO ratings VALUES (?,?,?,?)", rating0)
 
 rating1 = (1,
         1,
-        datetime.datetime.now(),
+        884732,
         5
         )
 cursor.execute(f"INSERT INTO ratings VALUES (?,?,?,?)", rating1)
