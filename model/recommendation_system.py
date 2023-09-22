@@ -141,7 +141,7 @@ connection.close()
 
 new_data.rename(columns = {'userid' : 'userId','movieid' : 'imdbId'}, inplace = True)
 collab_filtering = pd.concat([collab_filtering,new_data])
-collab_filtering.drop_duplicates(keep = 'last', inplace = True)
+collab_filtering.drop_duplicates(subset = ['userId','movieId'],keep = 'last', inplace = True)
 
 
 #############################################################################models preprocessing and training#################################################################################
