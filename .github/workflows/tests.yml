@@ -25,9 +25,10 @@ jobs:
           conda init bash
           source ~/.bashrc
           conda env create -f environment.yml 
-          conda activate my_environment || true
+          conda activate my_environment 
 
-
+      - name: Exécution des tests unitaires
+        run: pytest api/test_api.py
 
           
       - name: Display rep
@@ -36,14 +37,6 @@ jobs:
          ls -l
          ls -l data/loaded_api_datasets/kneighbors_results.npy
          
-      - name: Install dependency
-        run: |
-          pip install --upgrade pip
-          sed -i '/scikit-surprise==1.1.2/d' api/requirements.txt 
-          sed -i '/scikit-surprise==1.1.3/d' api/requirements.txt 
-          #conda install -n my_environment -c conda-forge scikit-surprise= 1.1.3
-          pip install --use-pep517 -r api/requirements.txt
 
-      - name: Exécution des tests unitaires
-        run: pytest api/test_api.py
+      
 
