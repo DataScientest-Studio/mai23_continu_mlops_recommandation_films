@@ -14,6 +14,19 @@ jobs:
       - name: Checkout le code
         uses: actions/checkout@v3
 
+      - name: Install Miniconda
+        uses: conda-incubator/setup-miniconda@v2
+        with:
+          python-version: 3.9
+          environment-file: environment.yml  
+
+      - name: Create and Activate Conda environment
+        run: |
+          conda init bash
+          source ~/.bashrc
+          conda env create -f environment.yml 
+          conda activate my_environment || true
+
 
 
           
@@ -28,7 +41,7 @@ jobs:
           pip install --upgrade pip
           sed -i '/scikit-surprise==1.1.2/d' api/requirements.txt 
           sed -i '/scikit-surprise==1.1.3/d' api/requirements.txt 
-
+          conda install -n my_environment -c conda-forge scikit-surprise= 1.1.3
           pip install --use-pep517 -r api/requirements.txt
 
       - name: Exécution des tests unitaires
