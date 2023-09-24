@@ -21,11 +21,12 @@ jobs:
           python-version: 3.9
           environment-file: environment.yml  
 
-      - name: Activate Conda environment
+      - name: Create and Activate Conda environment
         run: |
           conda init bash
           source ~/.bashrc
-          conda activate my_environment
+          conda env create -f environment.yml 
+          conda activate my_environment || true
 
           
       - name: Display rep
