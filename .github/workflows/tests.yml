@@ -36,8 +36,7 @@ jobs:
           $CONDA_PREFIX/bin/python -m pip install --upgrade pip  
           $CONDA_PREFIX/bin/sed -i '/scikit-surprise==1.1.3/d' api/requirements.txt
           $CONDA_PREFIX/bin/pip install --use-pep517 -r api/requirements.txt 
-          $CONDA_PREFIX/bin/pytest api/test_api.py
-
+          $CONDA_PREFIX/bin/python -m pytest api/test_api.py 
           
       - name: Display rep
         run : |
