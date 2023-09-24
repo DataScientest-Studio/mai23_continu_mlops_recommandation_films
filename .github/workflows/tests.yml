@@ -20,10 +20,14 @@ jobs:
           python-version: '3.9'
           architecture: 'x64'
       
-      - name: Install python3-dev
+      - name: Install python3.9-dev
         run: |
           sudo apt-get update
           sudo apt-get install python3-dev -y
+
+      - name : Install scikit surprise
+        run: |
+            pip install scikit-surprise
 
       - name: Display rep
         run : |
