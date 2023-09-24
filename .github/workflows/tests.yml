@@ -19,7 +19,7 @@ jobs:
         with:
           python-version: '3.9'
           architecture: 'x64'
-          environment-file: environment.yml  # Spécifiez votre fichier environment.yml
+          environment-file: api/environment.yml  # Spécifiez votre fichier environment.yml
 
       - name: Activate Conda environment
         run: conda activate my_environment  # Remplacez "my_environment" par le nom de votre environnement
