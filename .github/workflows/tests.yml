@@ -27,6 +27,10 @@ jobs:
           conda env create -f environment.yml 
           conda activate my_environment 
 
+      - name: Install pytest
+        run: pip install pytest
+
+
       - name: Exécution des tests unitaires
         run: pytest api/test_api.py
 
