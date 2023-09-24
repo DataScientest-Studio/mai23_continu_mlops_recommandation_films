@@ -38,7 +38,7 @@ jobs:
           $CONDA_PREFIX/bin/pip install numpy cython
           git clone https://github.com/NicolasHug/surprise.git
           cd surprise
-          $CONDA_PREFIX/bin/python setup.py install
+          $CONDA_PREFIX/bin/python setup.py install --user
           $CONDA_PREFIX/bin/pip install --use-pep517 -r api/requirements.txt 
           $CONDA_PREFIX/bin/python -m pytest api/test_api.py 
           
