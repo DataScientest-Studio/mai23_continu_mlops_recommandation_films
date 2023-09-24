@@ -35,6 +35,10 @@ jobs:
           echo "Chemin de l'environnement Conda : $CONDA_PREFIX"
           $CONDA_PREFIX/bin/python -m pip install --upgrade pip  
           $CONDA_PREFIX/bin/sed -i '/scikit-surprise==1.1.3/d' api/requirements.txt
+          $CONDA_PREFIX/bin/pip install numpy cython
+          git clone https://github.com/NicolasHug/surprise.git
+          cd surprise
+          $CONDA_PREFIX/bin/python setup.py install
           $CONDA_PREFIX/bin/pip install --use-pep517 -r api/requirements.txt 
           $CONDA_PREFIX/bin/python -m pytest api/test_api.py 
           
