@@ -21,8 +21,8 @@ jobs:
           environment-file: environment.yml  
 
       - name: Activate Conda environment
-        run: conda activate my_environment  # Remplacez "my_environment" par le nom de votre environnement
-
+        run: source $HOME/miniconda/etc/profile.d/conda.sh && conda activate my_environment      
+      
       - name: Display rep
         run : |
          pwd
