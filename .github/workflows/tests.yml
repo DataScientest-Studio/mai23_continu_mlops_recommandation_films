@@ -32,5 +32,5 @@ jobs:
           pip install --use-pep517 -r api/requirements.txt
 
       - name: Exécution des tests unitaires
-        run: pytest test_api.py
+        run: pytest api/test_api.py
 
