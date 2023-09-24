@@ -25,18 +25,19 @@ jobs:
           conda init bash
           source ~/.bashrc
           conda env create -f environment.yml 
+          CONDA_PREFIX=$(conda info --base)/envs/my_environment 
           conda activate my_environment 
 
 
 
       - name: Install dependency
         run: |
+          echo "Chemin de l'environnement Conda : $CONDA_PREFIX"
           conda activate my_environment 
-          python -m pip install --upgrade pip  
+          $CONDA_PREFIX/bin/python -m pip install --upgrade pip  
           sed -i '/scikit-surprise==1.1.3/d' api/requirements.txt
-          pip install --use-pep517 -r api/requirements.txt 
-          python -m site
-          pytest api/test_api.py
+          $CONDA_PREFIX/bin/pip install --use-pep517 -r api/requirements.txt 
+          $CONDA_PREFIX/bin/pytest api/test_api.py
 
           
       - name: Display rep
