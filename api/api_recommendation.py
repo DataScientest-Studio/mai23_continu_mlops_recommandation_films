@@ -7,14 +7,32 @@ if 'GITHUB_ACTIONS' in os.environ:
     # Utiliser le chemin relatif à partir du répertoire d'action de GitHub Actions
     file_path = os.path.join('data', 'loaded_api_datasets', 'kneighbors_results.npy')
     kneighbors_results = np.load(file_path)
+    file_path = os.path.join('data', 'loaded_api_datasets', 'svd_model.pkl')
+    svd_model =np.load(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'collab_filtering_df.pkl')
+    collab_filtering  =np.load(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'content_based_filtering_df.pkl')
+    content_based_filtering_duplicated =np.load(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'movies.pkl')
+    movies =np.load(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'movies_index.pkl')
+    movies_index =np.load(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'df_merged.pkl')
+    df_merged =np.load(file_path)
+
 else:
     kneighbors_results = np.load('../data/loaded_api_datasets/kneighbors_results.npy')
-svd_model = joblib.load('../data/loaded_api_datasets/svd_model.pkl')
-collab_filtering = pd.read_pickle('../data/loaded_api_datasets/collab_filtering_df.pkl')
-content_based_filtering_duplicated = pd.read_pickle('../data/loaded_api_datasets/content_based_filtering_df.pkl')
-movies = pd.read_pickle('../data/loaded_api_datasets/movies.pkl')
-movies_index = pd.read_pickle('../data/loaded_api_datasets/movies_index.pkl')
-df_merged = pd.read_pickle('../data/loaded_api_datasets/df_merged.pkl')
+    svd_model = joblib.load('../data/loaded_api_datasets/svd_model.pkl')
+    collab_filtering = pd.read_pickle('../data/loaded_api_datasets/collab_filtering_df.pkl')
+    content_based_filtering_duplicated = pd.read_pickle('../data/loaded_api_datasets/content_based_filtering_df.pkl')
+    movies = pd.read_pickle('../data/loaded_api_datasets/movies.pkl')
+    movies_index = pd.read_pickle('../data/loaded_api_datasets/movies_index.pkl')
+    df_merged = pd.read_pickle('../data/loaded_api_datasets/df_merged.pkl')
 
 def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, svd_model=svd_model,kneighbors_50 = kneighbors_results,
                                     ):
