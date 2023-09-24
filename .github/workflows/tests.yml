@@ -21,7 +21,7 @@ jobs:
           architecture: 'x64'
 
       - name: Display rep
-        run : pwd ls -R
+        run : ls -R
 
       - name: Install dependency
         run: |
