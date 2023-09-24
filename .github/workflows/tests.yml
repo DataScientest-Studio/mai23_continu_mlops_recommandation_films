@@ -27,7 +27,7 @@ jobs:
 
       - name : Install scikit surprise
         run: |
-            pip install scikit-surprise
+            python -m pip install --use-pep517 scikit-surprise
 
       - name: Display rep
         run : |
