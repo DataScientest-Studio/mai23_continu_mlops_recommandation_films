@@ -14,6 +14,7 @@ jobs:
       - name: Checkout le code
         uses: actions/checkout@v3
 
+
       - name: Install Miniconda
         uses: conda-incubator/setup-miniconda@v2
         with:
@@ -21,8 +22,12 @@ jobs:
           environment-file: environment.yml  
 
       - name: Activate Conda environment
-        run: source $HOME/miniconda/etc/profile.d/conda.sh && conda activate my_environment      
-      
+        run: |
+          conda init bash
+          source ~/.bashrc
+          conda activate my_environment
+
+          
       - name: Display rep
         run : |
          pwd
