@@ -1,6 +1,7 @@
 import joblib
 import pandas as pd
 import numpy as  np
+import os
 
 if 'GITHUB_ACTIONS' in os.environ:
     # Utiliser le chemin relatif à partir du répertoire d'action de GitHub Actions
