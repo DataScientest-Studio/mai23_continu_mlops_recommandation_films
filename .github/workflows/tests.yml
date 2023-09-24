@@ -21,7 +21,7 @@ jobs:
           architecture: 'x64'
 
       - name: Display rep
-        run : ls -R
+        run : ls -l ../data/loaded_api_datasets/kneighbors_results.npy
 
       - name: Install dependency
         run: |
