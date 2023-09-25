@@ -45,12 +45,17 @@ jobs:
       - name: Create and Activate Conda environment
         if: steps.cache-conda-env.outputs.cache-hit != 'true'
         run: |
-          conda init bash
-          source ~/.bashrc
-          conda env create -p ${{ runner.workspace }}/my_environment -f environment.yml
-          conda activate /home/runner/work/mai23_continu_mlops_recommandation_films/my_environment
-          conda run -n my_environment python -m pytest api/test_api.py
+         conda init bash
+         source ~/.bashrc
+         conda env create -p ${{ runner.workspace }}/my_environment -f environment.yml
+        shell: bash
 
+      - name: Run Tests with pytest
+        run: |
+         source ${{ runner.workspace }}/my_environment/bin/activate
+         python -m pytest api/test_api.py
+        shell: bash
+        
       - name: Display path 
         run: echo ${{ runner.workspace }}/my_environment
         
