@@ -39,18 +39,19 @@ jobs:
           python-version: 3.9
           environment-file: environment.yml
 
+      - name: Create my_environment directory
+        run: mkdir -p ${{ runner.workspace }}/my_environment
+
+      - name: Clear Conda Cache
+        run: conda clean --all --yes
+
       - name: Create and Activate Conda environment
         if: steps.cache-conda-env.outputs.cache-hit != 'true'
         run: |
           conda init bash
           source ~/.bashrc
-          conda env create -f environment.yml
-          CONDA_PREFIX=$(conda info --base)/envs/my_environment
-          conda activate my_environment
-          # Store the environment in the cache
-          mkdir -p ${{ runner.workspace }}/my_environment
-          cp -r $CONDA_PREFIX ${{ runner.workspace }}/my_environment/
-
+          conda env create -p ${{ runner.workspace }}/my_environment -f environment.yml
+          conda activate ${{ runner.workspace }}/my_environment
 
       - name: Display path 
         run: echo ${{ runner.workspace }}/my_environment
@@ -68,14 +69,17 @@ jobs:
         run: |
           conda info --envs
           conda list
-          
+
+      - name: Check Installed Packages
+        run: conda list
+
       - name: Run Tests
         run: |
-          source ${{ runner.workspace }}/my_environment/my_environment/bin/activate
-          ${{ runner.workspace }}/my_environment/my_environment/bin/python -m pytest api/test_api.py
+         source ${{ runner.workspace }}/my_environment/bin/activate
+         ${{ runner.workspace }}/my_environment/bin/python -m pytest api/test_api.py
 
       - name: Display rep
-        run : |
+        run: |
          pwd
          ls -l
          ls -l data/loaded_api_datasets/kneighbors_results.npy
