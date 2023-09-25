@@ -12,89 +12,29 @@ jobs:
 
     steps:
       - name: Checkout le code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v2
 
-      - name: Cache Conda environment
-        id: cache-conda-env
-        uses: actions/cache@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
         with:
-          path: ${{ runner.workspace }}/my_environment
-          key: conda-env-${{ runner.os }}-${{ hashFiles('environment.yml') }}
-          restore-keys: |
-            conda-env-${{ runner.os }}-
+          python-version: '3.11.4'
+          architecture: 'x64'
 
-      - name: Cache Miniconda
-        id: cache-conda
-        uses: actions/cache@v2
-        with:
-          path: ~/.conda
-          key: conda-${{ runner.os }}-${{ hashFiles('environment.yml') }}
-          restore-keys: |
-            conda-${{ runner.os }}-
-
-      - name: Install Miniconda
-        if: steps.cache-conda.outputs.cache-hit != 'true'
-        uses: conda-incubator/setup-miniconda@v2
-        with:
-          python-version: 3.9
-          environment-file: environment.yml
-
-      - name: Create my_environment directory
-        run: mkdir -p ${{ runner.workspace }}/my_environment
-
-      - name: Create and Activate Conda environment
-        if: steps.cache-conda-env.outputs.cache-hit != 'true'
+      - name: Remove scikit-surprise from requirements.txt
         run: |
-         conda init bash
-         source ~/.bashrc
-         conda env create -p ${{ runner.workspace }}/my_environment -f environment.yml
-        shell: bash
+          sed -i '/scikit-surprise==1.1.3/d' requirements.txt
 
+      - name: Install dependencies
+        run: pip install -r requirements.txt
 
+      - name: Clone surprise repository
+        run: git clone https://github.com/NicolasHug/surprise.git
 
-      - name: Debug Environment
+      - name: Install surprise from cloned repository
         run: |
-         echo "runner.workspace contents:"
-         ls ${{ runner.workspace }}
-         echo "Contents of my_environment:"
-         ls ${{ runner.workspace }}/my_environment
-        shell: bash
-  
-      - name: Run Tests with pytest
-        run: |
-         source ${{ runner.workspace }}/my_environment/bin/activate
-         python -m pytest api/test_api.py
-        shell: bash
-        
-      - name: Display path 
-        run: echo ${{ runner.workspace }}/my_environment
-        
-      - name: Find runner workspace
-        run: |
-         echo "Contenu du répertoire de travail du workflow :"
-         ls ${{ runner.workspace }}
+          cd surprise
+          python setup.py install
 
-      - name: Vérifier le contenu de my_environment
-        run: |
-         ls ${{ runner.workspace }}/my_environment
-
-      - name: Check Conda environment
-        run: |
-          conda info --envs
-          conda list
-
-      - name: Check Installed Packages
-        run: conda list
-
-
-
-         
-      - name: Display rep
-        run: |
-         pwd
-         ls -l
-         ls -l data/loaded_api_datasets/kneighbors_results.npy
-         
-
-      
+      - name: Run unit tests
+        run: pytest api/test_api.py
 
