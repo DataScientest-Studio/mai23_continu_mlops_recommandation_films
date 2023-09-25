@@ -1,7 +1,8 @@
 from pandas import DataFrame
 import pytest
 from fastapi.testclient import TestClient
-from api import api, Rating
+from api import api
+import init_db
 from typing import Optional
 from pydantic import ValidationError
 
