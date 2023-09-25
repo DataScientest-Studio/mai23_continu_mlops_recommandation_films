@@ -17,8 +17,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.11.4'
-          architecture: 'x64'
+          python-version: '3.9'
 
       - name: Remove scikit-surprise from requirements.txt
         run: |
@@ -32,12 +31,11 @@ jobs:
 
 
       - name: Clone surprise repository
-        run: git clone https://github.com/NicolasHug/surprise.git
-
-      - name: Install surprise from cloned repository
         run: |
-          cd surprise
-          python setup.py install
+         pip install numpy cython
+         git clone https://github.com/NicolasHug/surprise.git
+         cd surprise
+         python setup.py install
 
       - name: Run unit tests
         run: pytest api/test_api.py
