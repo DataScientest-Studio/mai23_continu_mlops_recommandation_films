@@ -42,9 +42,6 @@ jobs:
       - name: Create my_environment directory
         run: mkdir -p ${{ runner.workspace }}/my_environment
 
-      - name: Clear Conda Cache
-        run: conda clean --all --yes
-
       - name: Create and Activate Conda environment
         if: steps.cache-conda-env.outputs.cache-hit != 'true'
         run: |
