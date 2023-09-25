@@ -51,6 +51,12 @@ jobs:
           mkdir -p ${{ runner.workspace }}/my_environment
           cp -r $CONDA_PREFIX ${{ runner.workspace }}/my_environment/
 
+
+      - name: Find runner workspace
+        run: |
+         echo "Contenu du répertoire de travail du workflow :"
+         ls ${{ runner.workspace }}
+    
       - name: Run Tests
         run: |
           source ${{ runner.workspace }}/my_environment/my_environment/bin/activate
