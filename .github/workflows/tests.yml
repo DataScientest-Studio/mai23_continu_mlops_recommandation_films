@@ -51,8 +51,8 @@ jobs:
           conda init bash
           source ~/.bashrc
           conda env create -p ${{ runner.workspace }}/my_environment -f environment.yml
-          conda activate ${{ runner.workspace }}/my_environment
-
+          conda activate /home/runner/work/mai23_continu_mlops_recommandation_films/my_environment
+      
       - name: Display path 
         run: echo ${{ runner.workspace }}/my_environment
         
@@ -75,9 +75,10 @@ jobs:
 
       - name: Run Tests
         run: |
-         source ${{ runner.workspace }}/my_environment/bin/activate
-         ${{ runner.workspace }}/my_environment/bin/python -m pytest api/test_api.py
+         conda activate /home/runner/work/mai23_continu_mlops_recommandation_films/my_environment
+         python -m pytest api/test_api.py 
 
+         
       - name: Display rep
         run: |
          pwd
