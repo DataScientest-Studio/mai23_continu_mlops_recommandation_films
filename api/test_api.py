@@ -228,7 +228,7 @@ def test_recommendation_system_invalid_movie():
         )
 
     assert e.match(
-        "Erreur sur les paramètres rentrés dans la fonction, le userId ou le film ne font pas partie de la base de données!")
+        'Erreur sur les paramètres rentrés dans la fonction, le userId et le film ne font pas partie de la base de données!')
 
 
 """ TODO : à modifier dans le code faut des cond"""

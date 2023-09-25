@@ -1,8 +1,8 @@
-name: Refreshing the Model with New Data each sunday at 1 am
+name: Refreshing the Model with New Data each monday at 00:00
 
 on:
   schedule:
-    - cron: "0 1 * * 0"
+    - cron: "0 0 * * 1"
 
 jobs:
   run_recommendation_system:
