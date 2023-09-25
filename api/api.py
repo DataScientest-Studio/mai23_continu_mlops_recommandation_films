@@ -6,16 +6,17 @@ from classes import User, Event, Rating
 from api_recommendation import hybrid_recommendation_movies
 import sqlite3
 
-# with open("model.pkl", "rb") as pickled:
+
+#with open("model.pkl", "rb") as pickled:
 #   model = pickle.load(pickled)
 
 
 api = FastAPI(
-    title="API project Recommnendation System, MLOps May 2023",
-    description="This is a Recommendation System API",
-    version="0.2.1",
-    version_detail="addition of delete_user route",
-    openapi_tags=[
+    title = "API project Recommnendation System, MLOps May 2023",
+    description = "This is a Recommendation System API",
+    version = "0.2.1",
+    version_detail  = "addition of delete_user route",
+    openapi_tags = [
         {"name": "home",
          "description": "This is the Home route"},
         {"name": "new_user",
@@ -33,7 +34,7 @@ api = FastAPI(
         {"name": "recommendation_system",
          "description": "This is the Recommendation System route"},
         {"name": "log_event",
-         "description": "This is the log_event route"}, ]
+         "description": "This is the log_event route"},]
 )
 
 
@@ -74,7 +75,6 @@ def new_user(user: User):
         return {"userid": new_user_id}
     except sqlite3.IntegrityError:
         print("User already exists")
-        return {"User already exists"}
     except sqlite3.ProgrammingError:
         print("SQL syntax error")
     except sqlite3.OperationalError:
@@ -83,7 +83,7 @@ def new_user(user: User):
         print("Database error")
     conn.close()
     return {None}
-
+    
 
 @api.delete("/delete_user", tags=["delete_user"])
 def delete_user(user: User):
@@ -227,8 +227,8 @@ async def recommendation_system(userId: int, movie: str):
     """
     This is the recommendation_system route.
 
-    input :
-
+    input : 
+    
         userid : integer
         movie_title : string
 

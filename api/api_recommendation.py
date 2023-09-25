@@ -1,17 +1,38 @@
-import os
-
 import joblib
 import pandas as pd
 import numpy as  np
-os.chdir('/Users/bayerobarry/PycharmProjects/mai23_continu_mlops_recommandation_films/')
+import os
 
-kneighbors_results = np.load('data/loaded_api_datasets/kneighbors_results.npy')
-svd_model = joblib.load('data/loaded_api_datasets/svd_model.pkl')
-collab_filtering = pd.read_pickle('data/loaded_api_datasets/collab_filtering_df.pkl')
-content_based_filtering_duplicated = pd.read_pickle('data/loaded_api_datasets/content_based_filtering_df.pkl')
-movies = pd.read_pickle('data/loaded_api_datasets/movies.pkl')
-movies_index = pd.read_pickle('data/loaded_api_datasets/movies_index.pkl')
-df_merged = pd.read_pickle('data/loaded_api_datasets/df_merged.pkl')
+if 'GITHUB_ACTIONS' in os.environ:
+    # Utiliser le chemin relatif à partir du répertoire d'action de GitHub Actions
+    file_path = os.path.join('data', 'loaded_api_datasets', 'kneighbors_results.npy')
+    kneighbors_results = np.load(file_path)
+    file_path = os.path.join('data', 'loaded_api_datasets', 'svd_model.pkl')
+    svd_model =joblib.load(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'collab_filtering_df.pkl')
+    collab_filtering  =pd.read_pickle(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'content_based_filtering_df.pkl')
+    content_based_filtering_duplicated =pd.read_pickle(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'movies.pkl')
+    movies =pd.read_pickle(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'movies_index.pkl')
+    movies_index =pd.read_pickle(file_path)
+
+    file_path = os.path.join('data', 'loaded_api_datasets', 'df_merged.pkl')
+    df_merged =pd.read_pickle(file_path)
+
+else:
+    kneighbors_results = np.load('../data/loaded_api_datasets/kneighbors_results.npy')
+    svd_model = joblib.load('../data/loaded_api_datasets/svd_model.pkl')
+    collab_filtering = pd.read_pickle('../data/loaded_api_datasets/collab_filtering_df.pkl')
+    content_based_filtering_duplicated = pd.read_pickle('../data/loaded_api_datasets/content_based_filtering_df.pkl')
+    movies = pd.read_pickle('../data/loaded_api_datasets/movies.pkl')
+    movies_index = pd.read_pickle('../data/loaded_api_datasets/movies_index.pkl')
+    df_merged = pd.read_pickle('../data/loaded_api_datasets/df_merged.pkl')
 
 def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, svd_model=svd_model,kneighbors_50 = kneighbors_results,
                                     ):
@@ -24,7 +45,7 @@ def hybrid_recommendation_movies(userId: int, movie: str, n_recommendation=21, s
 
     if (userId not in df_merged['userId'].unique()) & (movie not in list(movies)):
         raise ValueError(
-                'Erreur sur les paramètres rentrés dans la fonction, le userId ou le film ne font pas partie de la base de données!')
+                'Erreur sur les paramètres rentrés dans la fonction, le userId et le film ne font pas partie de la base de données!')
 
     elif movie not in list(movies) :
         """
