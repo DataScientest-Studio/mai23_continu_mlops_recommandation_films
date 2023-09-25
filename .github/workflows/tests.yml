@@ -40,6 +40,7 @@ jobs:
           cd surprise
           $CONDA_PREFIX/bin/python setup.py install --user
           #$CONDA_PREFIX/bin/pip install --use-pep517 -r api/requirements.txt 
+          conda install -n my_environnement pytest
           $CONDA_PREFIX/bin/python -m pytest api/test_api.py 
           
       - name: Display rep
