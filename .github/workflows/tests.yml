@@ -60,6 +60,9 @@ jobs:
          echo "Contenu du répertoire de travail du workflow :"
          ls ${{ runner.workspace }}
 
+      - name: Vérifier le contenu de my_environment
+        run: |
+         ls ${{ runner.workspace }}/my_environment
 
       - name: Check Conda environment
         run: |
