@@ -59,7 +59,13 @@ jobs:
         run: |
          echo "Contenu du répertoire de travail du workflow :"
          ls ${{ runner.workspace }}
-    
+
+
+      - name: Check Conda environment
+        run: |
+          conda info --envs
+          conda list
+          
       - name: Run Tests
         run: |
           source ${{ runner.workspace }}/my_environment/my_environment/bin/activate
