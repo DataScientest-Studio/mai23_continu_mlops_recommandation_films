@@ -184,14 +184,14 @@ def test_invalid_high_rating(test_db):
     assert response.json()['detail'][0]['msg'] == 'ensure this value is less than or equal to 5'
 
 
-def test_delete_ratings(test_db):
+def test_delete_ratings():
     """
     Test qu'une note peut bien être supprimée
     """
 
     client = CustomTestClient(api)
 
-    existing_user_data = { "userid" : 1, "name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
+    existing_user_data = {"userid" : 1, "name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.delete_with_payload(url="/delete_ratings", json=existing_user_data)
     assert response.status_code == 200
     assert response.json() == ['Success: True']
