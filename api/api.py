@@ -61,7 +61,7 @@ def new_user(user: User):
     try:
         email_validator.validate_email(user.email, check_deliverability=False)
     except email_validator.EmailNotValidError as e:
-        raise HTTPException(status_code=400, detail="Invalid email format")
+        raise HTTPException(status_code=422, detail="Invalid email format")
 
 
     conn = connect_to_db("../database.db")
@@ -128,7 +128,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    if field == "email":
+        conn.close()
+        return {f"Success: {success}"}
+    elif field == "email":
         value = update.email
         try:
             cursor.execute(f"UPDATE users SET email = ? WHERE userid = ?", (value, update.userid))
@@ -138,7 +140,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    if field == "password":
+        conn.close()
+        return {f"Success: {success}"}
+    elif field == "password":
         value = update.password.get_secret_value()
         try:
             cursor.execute(f"UPDATE users SET password = ? WHERE userid = ?", (value, update.userid))
@@ -148,8 +152,12 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-    conn.close()
-    return {f"Success: {success}"}
+        conn.close()
+        return {f"Success: {success}"}
+    else:
+        conn.close()
+        raise HTTPException(status_code=400, detail=f"Invalid field: {field}")
+   
 
 
 

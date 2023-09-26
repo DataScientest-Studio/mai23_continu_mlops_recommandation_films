@@ -48,7 +48,7 @@ def test_new_user_false_mail():
     """
     invalid_user_data = {"name": "John Doe", "email": "falsemail.com", "password": "sshijh"}
     response = client.post("/new_user", json=invalid_user_data)
-    assert response.status_code == 400
+    assert response.status_code == 422
     assert response.json()['detail'] == "Invalid email format"
 
 
@@ -171,7 +171,7 @@ def test_invalid_low_rating(test_db):
     rating_data = {"userid": 0, "movieid": 129822, "rating": -1}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code != 200
-    assert response.json()['detail'][0]['msg'] == 'Input should be greater than or equal to 0'
+    assert response.json()['detail'][0]['msg'] == 'ensure this value is greater than or equal to 0'
 
 
 def test_invalid_high_rating(test_db):
@@ -181,7 +181,7 @@ def test_invalid_high_rating(test_db):
     rating_data = {"userid": 0, "movieid": 128734, "rating": 10}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code != 200
-    assert response.json()['detail'][0]['msg'] == 'Input should be less than or equal to 5'
+    assert response.json()['detail'][0]['msg'] == 'ensure this value is less than or equal to 5'
 
 
 def test_delete_ratings(test_db):
@@ -213,11 +213,11 @@ def test_recommendation_system_valid():
     Test que pour de bonnes données d'entrée le système de recommandation fonctionne
     """
     # Données pour la requête
-    userId = 3453
+    userid = 3453
     movie = "Oppenheimer"
 
     response = client.post(
-        f"/recommendation_system?userId={userId}&movie={movie}",
+        f"/recommendation_system?userid={userid}&movie={movie}",
         headers={"accept": "application/json"},
     )
 
@@ -229,14 +229,14 @@ def test_recommendation_system_valid():
 
 def test_recommendation_system_invalid_movie():
     """
-    Test que pour de mauvaises données d'entrée le système de recommandation fonctionne
+    Test que pour de mauvaises données d'entrée le système de recommandation ne fonctionne pas
     """
-    userId = 0
+    userid = 0
     movie = "Nonexistentmovie"
 
     with pytest.raises(ValueError) as e:
         response = client.post(
-            f"/recommendation_system?userId={userId}&movie={movie}",
+            f"/recommendation_system?userid={userid}&movie={movie}",
             headers={"accept": "application/json"},
         )
 
@@ -251,11 +251,11 @@ def test_recommendation_system_invalid_user_ok():
     """
     Test que le pour un mauvais ID le système de recommandation ne fonctionne pas
     """
-    userId = -5555
+    userid = -5555
     movie = "Oppenheimer"
 
     response = client.post(
-        f"/recommendation_system?userId={userId}&movie={movie}",
+        f"/recommendation_system?userid={userid}&movie={movie}",
         headers={"accept": "application/json"},
     )
 
