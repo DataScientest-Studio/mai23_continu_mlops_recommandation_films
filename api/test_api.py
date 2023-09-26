@@ -52,9 +52,7 @@ def test_new_user_false_mail():
     assert response.json()['detail'] == "Invalid email format"
 
 
-""" TODO: Remarque le code ne retourne pas de message d'erreur quand l'user existe déjà"""
-
-
+#TODO: Remarque le code ne retourne pas de message d'erreur quand l'user existe déjà"""
 def test_new_user_existing():
     """
     Test que si tentative d'ajout d'un user existant tout est ok
@@ -83,12 +81,18 @@ def test_delete_user_existing():
 
 
 def test_update_user():
+    """
+    Test que l'actualisation d'information d'un utilisateur fonctionne
+    """
     existing_user_data = {"userid": "1", "name": "Anthonynew", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.patch("/update_user/", json=existing_user_data, params={"field": "name"})
     assert response.status_code == 200
 
 
 def test_update_fake_field():
+    """
+    Test que si un faux domaine est donné qu'on a bien un message d'erreur
+    """
     existing_user_data = {
         "name": "Anthony",
         "email": "anthony@e.mail",
@@ -143,15 +147,18 @@ def test_db():
 #    response = client.patch("/update_rating", json=rating_data)
 #    assert response.status_code == 200
 
-# Fonctionne bien si bon format
+#Fonctionne bien si bon format
 #TODO : issue
-#def test_valid_rating():
+def test_valid_rating():
     """
     Test que sous le bon format, l'attribution d'une nouvelle note fonctionne
     """
-#    rating_data = {"userid": 1, "movieid": 128734, "rating": 5}
-#    response = client.post("/new_rating", json=rating_data)
-#    assert response.status_code == 200
+    client = TestClient(api)
+
+
+    rating_data = {"userid": 1, "movieid": 128734, "rating": 5}
+    response = client.post("/new_rating", json=rating_data)
+    assert response.status_code == 200
 
 
 # Fonctionne mal si échelle non respectée
@@ -184,7 +191,7 @@ def test_delete_ratings(test_db):
 
     client = CustomTestClient(api)
 
-    existing_user_data = { "name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
+    existing_user_data = { "userid" : 1, "name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.delete_with_payload(url="/delete_ratings", json=existing_user_data)
     assert response.status_code == 200
     assert response.json() == ['Success: True']
@@ -192,9 +199,9 @@ def test_delete_ratings(test_db):
 
 def test_update_rating():
     """'
-    Test que l'actualisation d'une note par un utilisateur
+    Test que l'actualisation d'une note pour un film  fonctionne
     """
-    client = CustomTestClient(api)
+    client = TestClient(api)
 
     rating_data = {"userid": 96, "movieid": 128734, "rating": 3}
     response = client.patch("/update_rating", json=rating_data)
@@ -202,6 +209,9 @@ def test_update_rating():
 
 
 def test_recommendation_system_valid():
+    """
+    Test que pour de bonnes données d'entrée le système de recommandation fonctionne
+    """
     # Données pour la requête
     userId = 3453
     movie = "Oppenheimer"
@@ -218,6 +228,9 @@ def test_recommendation_system_valid():
 
 
 def test_recommendation_system_invalid_movie():
+    """
+    Test que pour de mauvaises données d'entrée le système de recommandation fonctionne
+    """
     userId = 0
     movie = "Nonexistentmovie"
 
@@ -231,10 +244,13 @@ def test_recommendation_system_invalid_movie():
         'Erreur sur les paramètres rentrés dans la fonction, le userId et le film ne font pas partie de la base de données!')
 
 
-""" TODO : à modifier dans le code faut des cond"""
+# TODO : à modifier dans le code faut des cond"""
 
 
 def test_recommendation_system_invalid_user_ok():
+    """
+    Test que le pour un mauvais ID le système de recommandation ne fonctionne pas
+    """
     userId = -5555
     movie = "Oppenheimer"
 
