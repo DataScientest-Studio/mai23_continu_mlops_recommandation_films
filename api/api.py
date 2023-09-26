@@ -64,7 +64,7 @@ def new_user(user: User):
         raise HTTPException(status_code=400, detail="Invalid email format")
 
 
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
@@ -90,7 +90,7 @@ def delete_user(user: User):
     """
     This is the delete_user route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
@@ -114,7 +114,7 @@ def update_user(update: User, field: str):
     """
     This is the update_user route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     value = ""
@@ -128,9 +128,7 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-        conn.close()
-        return {f"Success: {success}"}
-    elif field == "email":
+    if field == "email":
         value = update.email
         try:
             cursor.execute(f"UPDATE users SET email = ? WHERE userid = ?", (value, update.userid))
@@ -140,9 +138,7 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-        conn.close()
-        return {f"Success: {success}"}
-    elif field == "password":
+    if field == "password":
         value = update.password.get_secret_value()
         try:
             cursor.execute(f"UPDATE users SET password = ? WHERE userid = ?", (value, update.userid))
@@ -152,11 +148,9 @@ def update_user(update: User, field: str):
             print("Operational issue")
         except sqlite3.DatabaseError:
             print("Database error")
-        conn.close()
-        return {f"Success: {success}"}
-    else:
-        conn.close()
-        raise HTTPException(status_code=400, detail=f"Invalid field: {field}")
+    conn.close()
+    return {f"Success: {success}"}
+
 
 
 @api.post("/new_rating", tags=["new_rating"])
@@ -165,7 +159,7 @@ def new_rating(rating: Rating):
     This is the new_rating route
 
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     try:
         cursor.execute(f"INSERT INTO ratings (userid, movieid, rating) VALUES (?,?,?)",
@@ -187,7 +181,7 @@ def new_rating(rating: Rating):
 
 @api.delete("/delete_ratings", tags=["delete_ratings"])
 def delete_ratings(user: User):
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
@@ -207,11 +201,11 @@ def update_rating(new_rating: Rating):
     """
     This is the update_rating route
     """
-    conn = connect_to_db("database.db")
+    conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
-        cursor.execute(f"UPDATE users SET rating = ? WHERE userid = ? AND movieid = ?",
+        cursor.execute(f"UPDATE ratings SET rating = ? WHERE userid = ? AND movieid = ?",
                        (new_rating.rating, new_rating.userid, new_rating.movieid))
         conn.commit()
         success = True
@@ -223,7 +217,7 @@ def update_rating(new_rating: Rating):
 
 
 @api.post("/recommendation_system", tags=["recommendation_system"])
-async def recommendation_system(userId: int, movie: str):
+async def recommendation_system(userid: int, movie: str):
     """
     This is the recommendation_system route.
 
@@ -235,7 +229,7 @@ async def recommendation_system(userId: int, movie: str):
     Return movies from a recommendation system
     """
 
-    recommendation_movies = hybrid_recommendation_movies(userId, movie)
+    recommendation_movies = hybrid_recommendation_movies(userid, movie)
 
     return {f"When this route grows up it will provide recommendations for this movie: {movie}": recommendation_movies}
 

@@ -28,13 +28,14 @@ user0 = (0,
 cursor.execute(f"INSERT INTO users VALUES (?,?,?,?)", user0)
 #print (user[1])
 
-user1 = ( "Anthony",
+user1 = (1,
+         "Anthony",
          "anthony@e.mail",
         "abadpassword1"
         )
 #print (user2[1])
 
-cursor.execute(f"INSERT INTO users (userid, name, email, password) VALUES (?,?,?, ?)",user1)
+cursor.execute(f"INSERT INTO users (userid, name, email, password) VALUES (?,?,?,?)",user1)
 
 cursor.execute("SELECT * FROM users")
 print(cursor.fetchall())

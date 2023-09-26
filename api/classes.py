@@ -9,7 +9,7 @@ class User(BaseModel):
     """
     userid: Optional[int] = None
     name: str
-    email: str
+    email: EmailStr
     password: SecretStr
     _password_min_length = constr(min_length=6)
 

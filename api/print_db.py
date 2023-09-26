@@ -1,9 +1,9 @@
 import sqlite3
 
-with open("schema.sql", "r") as file:
+with open("../schema.sql", "r") as file:
     schema = file.read()
 # print(schema)    
-connection = sqlite3.connect('database.db')
+connection = sqlite3.connect('../database.db')
 
 
 cursor = connection.cursor()
