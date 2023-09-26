@@ -188,12 +188,12 @@ def new_rating(rating: Rating):
 
 
 @api.delete("/delete_ratings", tags=["delete_ratings"])
-def delete_ratings(user: User):
+def delete_ratings(rating: Rating):
     conn = connect_to_db("../database.db")
     cursor = conn.cursor()
     success = False
     try:
-        cursor.execute(f"DELETE FROM ratings WHERE userid = ?", (user.userid,))
+        cursor.execute(f"DELETE FROM ratings WHERE userid = ? AND movieid = ?", (rating.userid,rating.movieid))
         conn.commit()
         success = True
     except sqlite3.OperationalError:
