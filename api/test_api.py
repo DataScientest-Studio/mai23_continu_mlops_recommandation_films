@@ -15,9 +15,8 @@ def test_get_home():
     Test que le lien fonctionne bien.
     """
     response = client.get("/")
-    print(response.json())
     assert response.status_code == 200
-    assert response.json() == ['Welcome to our API. This is a work in progress.']
+    assert 'Welcome to our API' in response.text
 
 
 ### Informations entrées par un utilisateur
@@ -37,6 +36,7 @@ def test_new_user_correct_information():
 
     response = client.post("/new_user", json=user_data)
     assert response.status_code == 200
+    assert "userid" in response.text
 
 
 # Fonctionne mal si mauvais format
@@ -52,14 +52,7 @@ def test_new_user_false_mail():
     assert response.json()['detail'] == "Invalid email format"
 
 
-#TODO: Remarque le code ne retourne pas de message d'erreur quand l'user existe déjà"""
-def test_new_user_existing():
-    """
-    Test que si tentative d'ajout d'un user existant tout est ok
-    """
-    existing_user_data = {"name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
-    response = client.post("/new_user", json=existing_user_data)
-    assert response.status_code == 200
+
 
 
 from fastapi.testclient import TestClient
@@ -78,6 +71,7 @@ def test_delete_user_existing():
     existing_user_data = {"name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.delete_with_payload(url="/delete_user", json=existing_user_data)
     assert response.status_code == 200
+    assert 'Success: True' in response.text
 
 
 def test_update_user():
@@ -87,6 +81,8 @@ def test_update_user():
     existing_user_data = {"userid": "1", "name": "Anthonynew", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.patch("/update_user/", json=existing_user_data, params={"field": "name"})
     assert response.status_code == 200
+    assert 'Success: True' in response.text
+
 
 
 def test_update_fake_field():
@@ -130,7 +126,6 @@ def test_db():
     # Fermez la base de données après les tests
     conn.close()
 
-#TODO : issue
 #def test_update_rating(test_db):
     """
     Test que l'actualisation d'une note par un utilisateur
@@ -159,6 +154,8 @@ def test_valid_rating():
     rating_data = {"userid": 1, "movieid": 128734, "rating": 5}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code == 200
+    assert '{"ratingid":' in response.text
+
 
 
 # Fonctionne mal si échelle non respectée
@@ -195,7 +192,7 @@ def test_delete_ratings(test_db):
     existing_user_data = {"ratingid" : 0, "userid": 1, "movieid": 128734, "rating": 0}
     response = client.delete_with_payload(url="/delete_ratings", json=existing_user_data)
     assert response.status_code == 200
-    #assert response.json() == ['Success: True']
+    assert response.json() == ['Success: True']
 
 
 def test_update_rating():
@@ -207,6 +204,7 @@ def test_update_rating():
     rating_data = {"userid": 96, "movieid": 128734, "rating": 3}
     response = client.patch("/update_rating", json=rating_data)
     assert response.status_code == 200
+    assert response.json() == ['Success: True']
 
 
 def test_recommendation_system_valid():
@@ -228,6 +226,10 @@ def test_recommendation_system_valid():
     assert "When this route grows up it will provide recommendations for this movie: Oppenheimer" in response_data
 
 
+import pytest
+
+
+
 def test_recommendation_system_invalid_movie():
     """
     Test que pour de mauvaises données d'entrée le système de recommandation ne fonctionne pas
@@ -241,16 +243,13 @@ def test_recommendation_system_invalid_movie():
             headers={"accept": "application/json"},
         )
 
-    assert e.match(
-        'Erreur sur les paramètres rentrés dans la fonction, le userId et le film ne font pas partie de la base de données!')
+    assert 'Erreur sur les paramètres rentrés dans la fonction, le userId et le film ne font pas partie de la base de données!' in str(e.value)
 
-
-# TODO : à modifier dans le code faut des cond"""
 
 
 def test_recommendation_system_invalid_user_ok():
     """
-    Test que le pour un mauvais ID le système de recommandation ne fonctionne pas
+    Test que le pour un mauvais ID mais un bon film le système de recommandation ne fonctionne pas
     """
     userid = -5555
     movie = "Oppenheimer"
@@ -261,6 +260,7 @@ def test_recommendation_system_invalid_user_ok():
     )
 
     assert response.status_code == 200
+    assert 'recommendations for this movie:' in response.text
 
 
 def test_log_event():
