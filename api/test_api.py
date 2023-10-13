@@ -19,7 +19,7 @@ def test_get_home():
     assert 'Welcome to our API' in response.text
 
 
-### Informations entrées par un utilisateur
+## Informations entrées par un utilisateur
 
 # Fonctionne bien si bon format
 
