@@ -171,7 +171,8 @@ def test_invalid_low_rating(test_db):
     rating_data = {"userid": 0, "movieid": 129822, "rating": -1}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code != 200
-    assert response.json()['detail'][0]['msg'] == 'ensure this value is greater than or equal to 0'
+    assert "greater than or equal to 0" in response.json()['detail'][0]['msg']
+
 
 
 def test_invalid_high_rating(test_db):
@@ -181,7 +182,7 @@ def test_invalid_high_rating(test_db):
     rating_data = {"userid": 0, "movieid": 128734, "rating": 10}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code != 200
-    assert response.json()['detail'][0]['msg'] == 'ensure this value is less than or equal to 5'
+    assert "less than or equal to 5" in response.json()['detail'][0]['msg']
 
 
 def test_delete_ratings(test_db):
