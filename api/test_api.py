@@ -36,7 +36,7 @@ def test_new_user_correct_information():
 
     response = client.post("/new_user", json=user_data)
     assert response.status_code == 200
-    assert "userid" in response.text
+    assert "userid" in response.json()
 
 # Fonctionne mal si mauvais format
 
