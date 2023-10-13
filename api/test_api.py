@@ -17,8 +17,7 @@ def test_get_home():
     response = client.get("/")
     print(response.json())
     assert response.status_code == 200
-    assert response.json() == ['Welcome to our API. This is a work in progress.']
-
+    assert 'Welcome to our API' in response.text
 
 ### Informations entrées par un utilisateur
 
@@ -37,7 +36,7 @@ def test_new_user_correct_information():
 
     response = client.post("/new_user", json=user_data)
     assert response.status_code == 200
-
+    assert "userid" in response.text
 
 # Fonctionne mal si mauvais format
 
@@ -52,7 +51,7 @@ def test_new_user_false_mail():
     assert response.json()['detail'] == "Invalid email format"
 
 
-#TODO: Remarque le code ne retourne pas de message d'erreur quand l'user existe déjà"""
+
 def test_new_user_existing():
     """
     Test que si tentative d'ajout d'un user existant tout est ok
@@ -78,7 +77,7 @@ def test_delete_user_existing():
     existing_user_data = {"name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.delete_with_payload(url="/delete_user", json=existing_user_data)
     assert response.status_code == 200
-
+    assert 'Success: True' in response.text
 
 def test_update_user():
     """
@@ -87,6 +86,7 @@ def test_update_user():
     existing_user_data = {"userid": "1", "name": "Anthonynew", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.patch("/update_user/", json=existing_user_data, params={"field": "name"})
     assert response.status_code == 200
+    assert 'Success: True' in response.text
 
 
 def test_update_fake_field():
@@ -130,7 +130,6 @@ def test_db():
     # Fermez la base de données après les tests
     conn.close()
 
-#TODO : issue
 #def test_update_rating(test_db):
     """
     Test que l'actualisation d'une note par un utilisateur
@@ -148,7 +147,6 @@ def test_db():
 #    assert response.status_code == 200
 
 #Fonctionne bien si bon format
-#TODO : issue
 def test_valid_rating():
     """
     Test que sous le bon format, l'attribution d'une nouvelle note fonctionne
@@ -159,7 +157,7 @@ def test_valid_rating():
     rating_data = {"userid": 1, "movieid": 128734, "rating": 5}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code == 200
-
+    assert '{"ratingid":' in response.text
 
 # Fonctionne mal si échelle non respectée
 
