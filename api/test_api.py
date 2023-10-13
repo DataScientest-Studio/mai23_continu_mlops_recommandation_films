@@ -144,7 +144,7 @@ def test_db():
 
 #Fonctionne bien si bon format
 #TODO : issue
-def test_valid_rating():
+def test_valid_rating(test_db):
     """
     Test que sous le bon format, l'attribution d'une nouvelle note fonctionne
     """
