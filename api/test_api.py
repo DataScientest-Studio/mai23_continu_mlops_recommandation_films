@@ -15,7 +15,6 @@ def test_get_home():
     Test que le lien fonctionne bien.
     """
     response = client.get("/")
-    print(response.json())
     assert response.status_code == 200
     assert 'Welcome to our API' in response.text
 
@@ -36,6 +35,8 @@ def test_new_user_correct_information():
 
     response = client.post("/new_user", json=user_data)
     assert response.status_code == 200
+    print(response.json())
+
     assert "userid" in response.json()
 
 # Fonctionne mal si mauvais format
@@ -77,7 +78,7 @@ def test_delete_user_existing():
     existing_user_data = {"name": "Anthony", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.delete_with_payload(url="/delete_user", json=existing_user_data)
     assert response.status_code == 200
-    assert 'Success: True' in response.text
+    assert 'Success: True' in response.json()
 
 def test_update_user():
     """
@@ -86,7 +87,7 @@ def test_update_user():
     existing_user_data = {"userid": "1", "name": "Anthonynew", "email": "anthony@e.mail", "password": "abadpassword1"}
     response = client.patch("/update_user/", json=existing_user_data, params={"field": "name"})
     assert response.status_code == 200
-    assert 'Success: True' in response.text
+    assert 'Success: True' in response.json()
 
 
 def test_update_fake_field():
@@ -157,7 +158,7 @@ def test_valid_rating():
     rating_data = {"userid": 1, "movieid": 128734, "rating": 5}
     response = client.post("/new_rating", json=rating_data)
     assert response.status_code == 200
-    assert '{"ratingid":' in response.text
+    assert 'ratingid' in response.json()
 
 # Fonctionne mal si échelle non respectée
 
