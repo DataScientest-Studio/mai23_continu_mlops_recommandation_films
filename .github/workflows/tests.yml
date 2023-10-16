@@ -1,4 +1,4 @@
-name: Unitary test
+name: Unitary test for the API
 
 on:
   push:
